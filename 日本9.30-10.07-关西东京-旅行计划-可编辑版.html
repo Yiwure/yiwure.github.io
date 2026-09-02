@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f6f2ea">
+<title>日本 9.30–10.07 · 关西 × 东京 8 日旅行计划</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#f6f2ea; --bg-soft:#efe8db; --card:#ffffff; --card-soft:#fbf8f2;
+    --text:#2e2a24; --text-dim:#7b7468; --accent:#c2402f; --accent-soft:rgba(194,64,47,.10);
+    --gold:#a8772c; --gold-soft:rgba(168,119,44,.13); --border:#e3dac9;
+    --ok:#2f7d4f; --ok-soft:rgba(47,125,79,.12); --shadow:0 1px 3px rgba(70,55,25,.07);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%;}
+  body{
+    background:linear-gradient(180deg,#fbf7ef 0%, var(--bg) 26%);
+    color:var(--text); font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:480px; margin:0 auto; padding:0 14px;
+    padding-left:14px; padding-right:14px;
+    padding-left:max(14px, env(safe-area-inset-left)); padding-right:max(14px, env(safe-area-inset-right));}
+  @media(min-width:768px){ .wrap{max-width:960px;} }
+  @media (orientation:landscape) and (max-height:520px){
+    header.hero{padding-top:calc(14px + env(safe-area-inset-top));}
+    #map{height:220px;}
+    section{margin:16px 0;}
+  }
+
+  /* ===== Header ===== */
+  header.hero{padding:calc(28px + env(safe-area-inset-top)) 0 6px; text-align:center;}
+  .kicker{letter-spacing:.35em; font-size:12px; color:var(--gold); margin-bottom:10px; text-transform:uppercase; font-weight:600;}
+  h1{font-size:25px; line-height:1.35; font-weight:800; letter-spacing:.02em; color:#1f1c17;}
+  .sub{color:var(--text-dim); font-size:13px; margin-top:6px;}
+  .jpy-note{display:inline-block; margin-top:8px; background:var(--gold-soft); color:var(--gold); border-radius:999px; padding:3px 12px; font-size:12px; font-weight:700;}
+  .checklist-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin:18px 0 24px; text-align:left; box-shadow:var(--shadow);}
+  .checklist-card h2{font-size:15px; margin-bottom:12px; color:var(--gold);}
+  .pretrip-todo{list-style:none;}
+  .todo-item{padding:7px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; display:flex; align-items:baseline; gap:8px;}
+  .todo-item:last-child{border-bottom:none;}
+  .todo-item input{accent-color:var(--accent); transform:translateY(1px); flex:none; width:20px; height:20px; -webkit-appearance:none; appearance:none; border:1.5px solid var(--border); border-radius:5px; background:#fff; position:relative; cursor:pointer; flex-shrink:0;}
+  .todo-item input:checked{background:var(--accent); border-color:var(--accent);}
+  .todo-item input:checked::after{content:""; position:absolute; left:6px; top:2px; width:5px; height:10px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);}
+  .todo-deadline{color:var(--accent); font-weight:700; font-size:12.5px; white-space:nowrap;}
+  .todo-text{color:var(--text);}
+
+  /* ===== Section ===== */
+  section{margin:24px 0;}
+  h2.sec-title{font-size:18px; margin-bottom:14px; display:flex; align-items:center; gap:8px; color:#1f1c17;}
+  h2.sec-title .bar{width:4px; height:18px; background:var(--accent); border-radius:2px; display:inline-block;}
+
+  /* pretrip */
+  .pt-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+  @media(min-width:768px){ .pt-grid{grid-template-columns:1fr 1fr;} }
+  .pt-item{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:13px; box-shadow:var(--shadow);}
+  .pt-item b{display:block; color:var(--gold); font-size:12.5px; margin-bottom:4px; letter-spacing:.05em;}
+  .pt-apps{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+  .pt-apps i{font-style:normal; background:var(--card-soft); border:1px solid var(--border); color:var(--text); border-radius:999px; padding:3px 10px; font-size:12px;}
+
+  /* flights */
+  .flights-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+  @media(min-width:768px){ .flights-grid{grid-template-columns:1fr 1fr;} }
+  .flight{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow);}
+  .flight .code{font-weight:800; font-size:16px;}
+  .flight .badge-booked{display:inline-block; background:var(--ok-soft); color:var(--ok); border-radius:999px; font-size:11.5px; padding:2px 9px; margin-left:8px; vertical-align:2px; font-weight:700;}
+  .flight .meta{color:var(--text-dim); font-size:12.5px; margin-top:5px;}
+
+  /* hotels */
+  .hotel{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; box-shadow:var(--shadow);}
+  .hotel .area{font-weight:800; font-size:14.5px; color:var(--accent);}
+  .hotel .reason{color:var(--text-dim); font-size:12.5px; margin:4px 0 8px;}
+  .hotel .opt{background:var(--card-soft); border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px; margin-top:6px;}
+  .hotel .opt .tier{display:inline-block; background:var(--ok-soft); color:var(--ok); border-radius:999px; font-size:11px; padding:1px 8px; font-weight:700;}
+  .hotel .opt .pr{color:var(--gold); font-size:12px; font-weight:700;}
+
+  /* disclaimer */
+  .disclaimer{background:var(--gold-soft); border:1px solid rgba(168,119,44,.4); border-radius:12px; padding:12px 14px; font-size:12px;}
+
+  /* map */
+  #map{height:340px; border-radius:16px; border:1px solid var(--border); z-index:1; box-shadow:var(--shadow); background:#e8e2d6;}
+  @media(min-width:768px){ #map{height:460px;} }
+  .map-fallback{height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px; text-align:center; padding:20px;}
+  .route-pin{background:var(--accent); border:2px solid #fff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,.35);}
+  .route-pin__num{display:flex; align-items:center; justify-content:center; height:100%; font-size:12px; font-weight:800; color:#fff;}
+  .leaflet-container .leaflet-popup-content{font-size:13px; line-height:1.5; color:#333;}
+  .leaflet-container .leaflet-popup-content a{color:#c2402f; font-weight:700;}
+
+  /* timeline */
+  .day-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:var(--shadow);}
+  .day-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .day-date{font-weight:800; font-size:16px; color:var(--accent);}
+  .day-week{color:var(--text-dim); font-size:13px;}
+  .day-theme{font-size:13px; color:var(--gold); font-weight:600; margin-bottom:10px;}
+  .day-tips{background:var(--accent-soft); border-radius:10px; padding:8px 12px; font-size:12.5px; margin-bottom:12px;}
+  .day-tips b{color:var(--accent);}
+  .slots-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+  @media(min-width:768px){ .slots-grid{grid-template-columns:1fr 1fr;} }
+  .slot{background:var(--card-soft); border:1px solid var(--border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; position:relative;}
+  .slot .ph{position:relative; width:100%; padding-top:56.25%; background:linear-gradient(135deg,#dde5e8,#e6dcd2 60%,#ecd0c4); overflow:hidden;}
+  .slot .ph img{position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; -webkit-user-drag:none; user-select:none;}
+  .slot .ph .ph-name{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1; color:#5c5144; font-weight:700; font-size:13px; letter-spacing:.04em; padding:0 10px; text-align:center; width:100%;}
+  .slot .body{padding:11px 12px; display:flex; flex-direction:column; gap:6px;}
+  .slot .nm{font-weight:800; font-size:14px;}
+  .slot .tm{color:var(--gold); font-size:12px; font-weight:700;}
+  .slot .rv{color:var(--text-dim); font-size:12.5px;}
+  .slot .rate{font-size:12px; color:var(--gold); font-weight:700;}
+  .pill{display:inline-block; background:#fff; border:1px solid var(--border); border-radius:999px; font-size:11px; padding:2px 9px; margin:2px 4px 2px 0; color:var(--text);}
+  .pill.season{background:var(--gold-soft); border-color:rgba(168,119,44,.4); color:var(--gold);}
+  .reminder-badge{display:inline-block; background:var(--accent); color:#fff; border-radius:999px; font-size:11px; padding:2px 10px; margin-top:2px; font-weight:700;}
+  .alternatives{background:var(--card-soft); border:1px dashed var(--gold); border-radius:12px; padding:10px 12px; margin-top:10px;}
+  .alternatives b{color:var(--gold); font-size:12.5px;}
+  .alternatives p{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
+
+  /* dining */
+  .dining{background:var(--card-soft); border:1px solid var(--border); border-radius:12px; padding:11px 13px; margin-top:10px;}
+  .dining .meal{font-weight:800; font-size:13.5px; color:var(--accent);}
+  .dining .place{font-size:13px; font-weight:700; margin-top:2px;}
+  .dining .hours{color:var(--text-dim); font-size:11.5px;}
+  .dining ul{margin:5px 0 0 16px; font-size:12.5px;}
+  .dining li span{color:var(--gold); font-weight:700;}
+
+  /* tips */
+  .tips-list{list-style:none;}
+  .tips-list li{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:13px; margin-bottom:8px; display:flex; gap:8px; box-shadow:var(--shadow);}
+  .tips-list li::before{content:"💡"; flex:none;}
+
+  footer{margin:32px 0 0; padding-bottom:calc(40px + env(safe-area-inset-bottom)); text-align:center; color:var(--text-dim); font-size:11.5px;}
+
+  /* ===== 编辑模式 ===== */
+  .editbar{position:fixed; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:1000; display:flex; flex-direction:column; gap:8px; align-items:flex-end;}
+  .editbar button{border:none; border-radius:999px; padding:10px 16px; font-size:13px; font-weight:700; box-shadow:0 2px 10px rgba(0,0,0,.18); cursor:pointer; color:#fff;}
+  #btn-edit{background:var(--accent);}
+  #btn-export{background:var(--gold); color:#fff; display:none;}
+  body.edit-mode #btn-export{display:block;}
+  body.edit-mode [data-path]{outline:1px dashed rgba(194,64,47,.55); outline-offset:2px; cursor:text; border-radius:4px; min-height:1em;}
+  body.edit-mode [data-path]:hover{background:var(--accent-soft);}
+  body.edit-mode .slot .ph{cursor:pointer; outline:2px dashed rgba(168,119,44,.7); outline-offset:2px;}
+  body.edit-mode .slot .ph::after{content:"🖼️ 点此换图"; position:absolute; right:6px; bottom:6px; z-index:2; background:rgba(0,0,0,.55); color:#fff; font-size:11px; padding:3px 8px; border-radius:999px;}
+  .ed-hint{display:none; text-align:center; font-size:12px; color:var(--accent); background:var(--accent-soft); border-radius:10px; padding:8px 12px; margin-bottom:10px;}
+  body.edit-mode .ed-hint{display:block;}
+  .slot .del-slot{display:none; position:absolute; top:6px; right:6px; z-index:3; background:var(--accent); color:#fff; border:none; border-radius:999px; width:26px; height:26px; font-size:14px; line-height:1; cursor:pointer;}
+  body.edit-mode .slot .del-slot{display:block;}
+  .add-slot{display:none; margin-top:10px; width:100%; border:1.5px dashed var(--accent); color:var(--accent); background:transparent; border-radius:12px; padding:10px; font-size:13px; font-weight:700; cursor:pointer;}
+  body.edit-mode .add-slot{display:block;}
+  .toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:rgba(30,30,30,.9); color:#fff; font-size:13px; padding:10px 18px; border-radius:999px; z-index:2000; display:none;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===== 页顶 ===== -->
+  <header class="hero">
+    <div class="kicker">Osaka · Kyoto · Tokyo</div>
+    <h1>日本 9.30–10.07 · 关西 × 东京 8 日</h1>
+    <p class="sub">2026-09-30 出发 · 8 天 · 暖白 × 朱红 × 金（亮色日式和风）</p>
+    <span class="jpy-note">💴 本页价格均为日元（JPY）参考价</span>
+    <div class="checklist-card">
+      <h2>✈️ 出发前待办清单（按截止日排序）</h2>
+      <ul class="pretrip-todo">
+        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-16前</span><span class="todo-text">填写 Visit Japan Web（入境审查+海关申报）（建议提前14天）</span></li>
+        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-08-31前</span><span class="todo-text">预订岚山小火车（嵯峨野观光铁道）车票（建议提前30天）</span></li>
+        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-23前</span><span class="todo-text">预订 GRAND GRACE GR102 夜行巴士（京都→新宿）（建议提前7天）</span></li>
+        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-27前</span><span class="todo-text">预订晴空塔展望台门票（可选）（建议提前3天）</span></li>
+        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-27前</span><span class="todo-text">开通手机 eSIM/漫游 + 备好现金（建议提前3天）</span></li>
+      </ul>
+    </div>
+    <div class="ed-hint">✏️ 编辑模式已开启：点文字直接改，点图片换图；改完点右下「导出 HTML」保存新文件</div>
+  </header>
+
+  <main>
+    <!-- ===== 行前须知 ===== -->
+    <section id="pretrip">
+      <h2 class="sec-title"><span class="bar"></span>行前须知（按 9 月底–10 月初定制）</h2>
+      <div class="pt-grid">
+        <div class="pt-item"><b>🌤️ 天气</b><span data-path="preTrip.weather.summary">9 月底–10 月初：大阪/京都白天 21–27°C、夜间 15–19°C；东京白天 19–25°C。早晚温差明显、午间日照仍强，是关西最舒服的旅行季之一。</span></div>
+        <div class="pt-item"><b>🌀 台风/暴雨</b><span data-path="preTrip.weather.typhoon">10 月初仍处台风季末期，出发前 3 天起关注日本气象厅（JMA）台风/暴雨预警；若遇台风，航班、寺庙与交通可能临时调整。</span></div>
+        <div class="pt-item"><b>🧥 穿搭</b><span data-path="preTrip.packing">长袖衬衫/薄卫衣 + 一件防风外套（早晚凉），舒适步行鞋（每日约 1.5–2 万步），折叠伞，便携充电宝；参拜神社寺庙时着装得体即可。</span></div>
+        <div class="pt-item"><b>💳 支付</b><span data-path="preTrip.payment">手机 Suica/Pasmo（Apple 钱包可加卡、内地卡可充值），另备 2–3 万日元现金（小店、自动贩卖机、部分寺庙只收现金），VISA/Master 信用卡通用。</span></div>
+        <div class="pt-item"><b>🎫 购票时机</b><span data-path="preTrip.ticketTip">岚山小火车票提前 1 个月开售（JR 西日本官网/车站窗口）；夜行巴士 GRAND GRACE 建议提前 7 天订；晴空塔可提前 3 天官网购票避开现场排队。</span></div>
+        <div class="pt-item"><b>📱 必备 App</b><div class="pt-apps"><i>Google Maps</i><i>乗換案内</i><i>Visit Japan Web</i><i>Google 翻译</i></div></div>
+      </div>
+    </section>
+
+    <!-- ===== 航班 ===== -->
+    <section id="flights">
+      <h2 class="sec-title"><span class="bar"></span>航班</h2>
+      <div class="flights-grid">
+        <div class="flight"><span class="code">CX502</span><span class="badge-booked">✓ 已预订</span><div class="meta" data-path="flights.booked.0.time">CX502 香港 → 大阪（去程）<br>9.30 16:30（HK）→ 21:15（JP）· 香港T1 → 关西国际T1</div></div>
+        <div class="flight"><span class="code">CX503</span><span class="badge-booked">✓ 已预订</span><div class="meta" data-path="flights.booked.1.time">CX503 东京 → 香港（返程）<br>10.07 10:05（JP）→ 13:50（HK）· 羽田T3 → 香港T1</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 酒店 ===== -->
+    <section id="hotels">
+      <h2 class="sec-title"><span class="bar"></span>酒店（按片区，均已预订）</h2>
+      <div class="hotel"><div class="area">📍 大阪 · 梅田</div><div class="reason">机场利木津巴士直达、JR/地铁枢纽，去大阪城、难波、京都都方便，楼下就是梅田大商圈。</div>
+        <div class="opt"><span class="tier">已预订</span> 宜必思大阪梅田酒店（Ibis Osaka Umeda） · <span class="pr">约 ¥700–900/晚</span><div class="nt">9.30–10.02 两晚，14:00 后 check-in，10.02 11:00 前 check-out；退房时在柜台办理宅急送行李到下一家酒店。</div></div>
+      </div>
+      <div class="hotel"><div class="area">📍 京都 · 京都站</div><div class="reason">紧邻京都站：去清水寺、伏见稻荷、岚山的交通枢纽，也是夜行巴士上车点（八条口）。</div>
+        <div class="opt"><span class="tier">已预订</span> 京都站精英酒店（Kyoto Station Elite Hotel） · <span class="pr">约 ¥500–700/晚</span><div class="nt">10.02–10.03 一晚；站前收宅急便行李、坐 206 路公交去清水道非常顺。</div></div>
+      </div>
+      <div class="hotel"><div class="area">📍 东京 · 五反田</div><div class="reason">JR 山手线直达涩谷、东京站、上野、秋叶原，距羽田机场约 35 分钟，性价比高、换乘少。</div>
+        <div class="opt"><span class="tier">已预订</span> 五反田京王布莱索酒店（Keio Presso Inn Gotanda） · <span class="pr">约 ¥600–900/晚</span><div class="nt">10.04–10.07 三晚；10.03 夜行巴士 6:25 到新宿后乘山手线 10 分钟即达。</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 免责声明 ===== -->
+    <section>
+      <div class="disclaimer"><b>⚠️ 免责声明：</b>本页全部信息（天气、航班、酒店、餐厅、景点、门票、价格、营业时间、评分、活动等）均为 AI 基于公开资料整理的参考建议，可能不准确或已过时，不保证与实时情况一致；请务必在官方渠道 / 订票订房 / 地图等 App 上核实后再做决定或前往。</div>
+    </section>
+
+    <!-- ===== 地图 ===== -->
+    <section>
+      <h2 class="sec-title"><span class="bar"></span>🗺️ 行程地图（点击标记查看导航）</h2>
+      <div id="map"><div class="map-fallback">🗺️ 地图由浏览器交互加载（需联网）<br>文字行程不受影响</div></div>
+    </section>
+
+    <!-- ===== 每日时间轴（静态渲染：即使无 JS 也完整可见） ===== -->
+    <section>
+      <h2 class="sec-title"><span class="bar"></span>📅 每日行程</h2>
+      <div id="timeline">
+
+      <!-- Day1 09-30 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 1 · 2026-09-30</span><span class="day-week">周三</span></div>
+        <div class="day-theme" data-path="days.0.theme">出发日 · 深圳 → 香港 → 大阪</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.0.tips.0">上午 10:00 前从深圳出发前往香港机场（高铁/跨境巴士约 2 小时），14:30 到港后办理登机；国泰 CX502 21:15（日本时间）落地关西。</span></div><div>· <span data-path="days.0.tips.1">21:15 落地后入境+取行李约 40–60 分钟，利木津巴士末班约 23:00，注意别错过。</span></div></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.0.slots.0">
+            <button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.0.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kansai%20International%20Airport%20Terminal.JPG?width=600" alt="关西国际机场 T1" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">关西国际机场 T1</span></div>
+            <div class="body">
+              <div class="nm" data-path="days.0.slots.0.name">关西国际机场 T1</div>
+              <div class="tm">🌙 晚上 · <span data-path="days.0.slots.0.time">21:15 抵达</span></div>
+              <div class="rv" data-path="days.0.slots.0.review">CX502 落地，入境审查+取行李；之后乘利木津巴士或南海电铁进市区。</div>
+              <div class="rate">★ 4.4</div>
+              <span class="pill">🕘 入境审查 24 小时运行</span><span class="pill">🎫 利木津巴士→梅田约 ¥1,600</span><span class="pill">🚇 利木津巴士（关西机场→梅田） · 约 ¥1,600 · 约 55–75 分钟</span>
+            </div>
+          </div>
+          <div class="slot" data-slotpath="days.0.slots.1">
+            <button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph"><span class="ph-name">宜必思大阪梅田酒店（Check-in）</span></div>
+            <div class="body">
+              <div class="nm" data-path="days.0.slots.1.name">宜必思大阪梅田酒店（Check-in）</div>
+              <div class="tm">🌙 晚上 · <span data-path="days.0.slots.1.time">约 22:30 入住</span></div>
+              <div class="rv" data-path="days.0.slots.1.review">梅田商圈内的连锁酒店，楼下便利店与居酒屋齐全；早点休息，明天开走。</div>
+              <div class="rate">★ 4.3</div>
+              <span class="pill">🕘 前台 24 小时</span>
+            </div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 晚餐（机上/落地简餐）</div><div class="place">便利店补给（FamilyMart/Lawson）</div><div class="hours">营业：24 小时</div><ul><li>饭团+炸鸡+牛奶 <span>约 ¥600</span></li></ul></div>
+        <button class="add-slot" data-dayidx="0">＋ 添加景点</button>
+      </div>
+
+      <!-- Day2 10-01 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 2 · 2026-10-01</span><span class="day-week">周四</span></div>
+        <div class="day-theme" data-path="days.1.theme">大阪城 · 难波板块</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.1.tips.0">上午先排户外（天满宫→大阪城），午后进商店街与商场避高温；道顿堀留给晚上看霓虹。</span></div><div>· <span data-path="days.1.tips.1">天神桥筋商店街与黑门市场二选一即可：前者本地生活气、后者海鲜小吃多，别贪多。</span></div></div>
+        <div class="alternatives"><b>🔀 当日可选方案</b><p>🔸 <b>午餐方案 A · 天神桥筋商店街</b>：<span data-path="days.1.alternatives.0.summary">日本最长商店街（约 2.6km），一路吃章鱼烧、串炸、点心，本地人爱逛</span></p><p>🔸 <b>午餐方案 B · 黑门市场</b>：<span data-path="days.1.alternatives.1.summary">大阪厨房，海鲜刺身、和牛串、草莓大福，游客向但种类全</span></p></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.1.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.1.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/%C3%94saka-ten%27man-g%C3%BB%20Shint%C3%B4%20Shrine%20-%20Ebisu-mon%20Gate.jpg?width=600" alt="大阪天满宫" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">大阪天满宫</span></div>
+            <div class="body"><div class="nm" data-path="days.1.slots.0.name">大阪天满宫</div><div class="tm">☀️ 上午 · <span data-path="days.1.slots.0.time">09:30–10:30</span></div><div class="rv" data-path="days.1.slots.0.review">学问之神菅原道真，西日本最大天满宫之一；御守和朱印很精致，清晨人少。</div><div class="rate">★ 4.5</div><span class="pill">🕘 6:00–17:00（社务所）</span><span class="pill">🎫 免费</span><span class="pill">🚇 梅田→谷町线/步行 · 约 ¥180 · 约 15 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.1.slots.1"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.1.slots.1.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Osaka%20Castle%2016.JPG?width=600" alt="大阪城（天守阁）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">大阪城（天守阁）</span></div>
+            <div class="body"><div class="nm" data-path="days.1.slots.1.name">大阪城（天守阁）</div><div class="tm">☀️ 上午 · <span data-path="days.1.slots.1.time">10:45–12:30</span></div><div class="rv" data-path="days.1.slots.1.review">丰臣秀吉的大阪城，天守阁俯瞰全城；西之丸庭园与护城河很出片。</div><div class="rate">★ 4.7</div><span class="pill">🕘 9:00–17:00（16:30 停止入馆）</span><span class="pill">🎫 天守阁 ¥600（参考）</span><span class="pill">🚇 天满宫→大阪城（步行/地铁谷町线） · 约 ¥180 · 约 20 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.1.slots.2"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.1.slots.2.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kuromon%20Market%20-%20panoramio.jpg?width=600" alt="天神桥筋商店街 或 黑门市场（午餐）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">天神桥筋商店街 或 黑门市场（午餐）</span></div>
+            <div class="body"><div class="nm" data-path="days.1.slots.2.name">天神桥筋商店街 或 黑门市场（午餐）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.1.slots.2.time">12:30–14:00</span></div><div class="rv" data-path="days.1.slots.2.review">黑门市场吃海鲜刺身、和牛串；若选天神桥筋则沿街边走边吃。</div><div class="rate">★ 4.4</div><span class="pill">🕘 约 9:00–18:00（各店不同）</span><span class="pill">🎫 丰俭由人，人均 ¥1,500–3,000</span><span class="pill">🚇 大阪城→谷町四丁目→中央线→难波 · 约 ¥230 · 约 25 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.1.slots.3"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.1.slots.3.photo"><img src="https://ja.wikipedia.org/wiki/Special:FilePath/Namba-yasaka-jinja%20shishibutai.jpg?width=600" alt="难波八坂神社（可选）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">难波八坂神社（可选）</span></div>
+            <div class="body"><div class="nm" data-path="days.1.slots.3.name">难波八坂神社（可选）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.1.slots.3.time">14:15–14:45</span></div><div class="rv" data-path="days.1.slots.3.review">巨大狮子头神殿「狮殿」是网红打卡点，祈求胜利与好运，顺路 20 分钟足够。</div><div class="rate">★ 4.6</div><span class="pill">🕘 8:00–17:00</span><span class="pill">🎫 免费</span><span class="pill">🚇 黑门市场步行 · 免费 · 约 8 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.1.slots.4"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.1.slots.4.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Shinsaibashi1.JPG?width=600" alt="心斋桥（逛街 + Harbs 蛋糕）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">心斋桥（逛街 + Harbs 蛋糕）</span></div>
+            <div class="body"><div class="nm" data-path="days.1.slots.4.name">心斋桥（逛街 + Harbs 蛋糕）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.1.slots.4.time">15:00–17:00</span></div><div class="rv" data-path="days.1.slots.4.review">拱廊购物街：药妆、潮牌、百货；Harbs 水果千层蛋糕是必吃甜品（心斋桥 Parco 店）。</div><div class="rate">★ 4.6</div><span class="pill">🕘 商场约 10:00–20:00</span><span class="pill">🎫 免费逛街；Harbs 蛋糕约 ¥900–1,100</span><span class="pill">🚇 难波→御堂筋线→心斋桥 · 约 ¥180 · 约 5 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.1.slots.5"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.1.slots.5.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Dotonbori%2017.JPG?width=600" alt="道顿堀（晚餐+夜景）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">道顿堀（晚餐+夜景）</span></div>
+            <div class="body"><div class="nm" data-path="days.1.slots.5.name">道顿堀（晚餐+夜景）</div><div class="tm">🌙 晚上 · <span data-path="days.1.slots.5.time">17:30–20:00</span></div><div class="rv" data-path="days.1.slots.5.review">格力高跑男、蟹道乐、章鱼烧一条街；赤鬼章鱼烧连续两年米其林推荐。</div><div class="rate">★ 4.8</div><span class="pill">🕘 餐饮多营业至 23:00</span><span class="pill">🎫 章鱼烧约 ¥600/6 个</span><span class="pill season">🍁 10 月初傍晚气温舒适，正是看霓虹夜景的好时候</span><span class="pill">🚇 心斋桥步行 · 免费 · 约 10 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 午餐</div><div class="place">黑门市场（若选方案 B）</div><div class="hours">营业：约 9:00–18:00</div><ul><li>海鲜刺身拼盘 <span>¥1,500</span></li><li>和牛串 <span>¥800</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 下午茶</div><div class="place">Harbs（心斋桥 Parco 店）</div><div class="hours">营业：10:00–20:00</div><ul><li>水果千层蛋糕 <span>¥980</span></li><li>冰柠檬茶 <span>¥680</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 晚餐</div><div class="place">道顿堀 · 赤鬼章鱼烧</div><div class="hours">营业：11:00–22:00</div><ul><li>章鱼烧 6 个 <span>¥600</span></li><li>炸串 <span>¥400</span></li></ul></div>
+        <button class="add-slot" data-dayidx="1">＋ 添加景点</button>
+      </div>
+
+      <!-- Day3 10-02 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 3 · 2026-10-02</span><span class="day-week">周五</span></div>
+        <div class="day-theme" data-path="days.2.theme">京都 · 清水寺 → 八坂神社 → 祇园 → 伏见稻荷</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.2.tips.0">早上退房时在酒店前台办理宅急便，把大件行李寄到京都站精英酒店（约 ¥1,500–2,500/件，次日达）。</span></div><div>· <span data-path="days.2.tips.1">206 路公交 8 站到清水道下车；回程伏见稻荷→京都站乘 JR 奈良线直达。</span></div></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.2.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.2.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kiyomizu%20dera%2C%20Kyoto.JPG?width=600" alt="清水寺" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">清水寺</span></div>
+            <div class="body"><div class="nm" data-path="days.2.slots.0.name">清水寺</div><div class="tm">☀️ 上午 · <span data-path="days.2.slots.0.time">09:00–11:00</span></div><div class="rv" data-path="days.2.slots.0.review">世界遗产，悬空舞台望京都全景；清晨游客最少，二三年坂顺路逛。</div><div class="rate">★ 4.8</div><span class="pill">🕘 6:00–18:00</span><span class="pill">🎫 ¥400（参考）</span><span class="pill">🚇 京都站→市营 206 路→清水道 · ¥230 · 约 25 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.2.slots.1"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.2.slots.1.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto%20Yasaka-jinja%20Nebentor%202.jpg?width=600" alt="八坂神社" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">八坂神社</span></div>
+            <div class="body"><div class="nm" data-path="days.2.slots.1.name">八坂神社</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.2.slots.1.time">11:30–12:30</span></div><div class="rv" data-path="days.2.slots.1.review">祇园的守护神社，西楼门灯笼是经典机位；参道小吃多，适合午餐前逛。</div><div class="rate">★ 4.6</div><span class="pill">🕘 境内 24 小时</span><span class="pill">🎫 免费</span><span class="pill">🚇 清水寺步行（经二年坂/三年坂） · 免费 · 约 25 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.2.slots.2"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.2.slots.2.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Street%20of%20Gion%2C%20Kyoto.JPG?width=600" alt="祇园 · 花见小路（午餐）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">祇园 · 花见小路（午餐）</span></div>
+            <div class="body"><div class="nm" data-path="days.2.slots.2.name">祇园 · 花见小路（午餐）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.2.slots.2.time">12:30–14:00</span></div><div class="rv" data-path="days.2.slots.2.review">京都最具风情的花街，町屋建筑与茶屋；午餐吃京豆腐或抹茶甜点。</div><div class="rate">★ 4.7</div><span class="pill">🕘 街道全天</span><span class="pill">🎫 午餐人均 ¥2,000–4,000</span><span class="pill">🚇 八坂神社步行 · 免费 · 约 5 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.2.slots.3"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.2.slots.3.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Double%20torii%20path%20at%20Fushimi%20Inari%20Taisha%20Shrine%2C%20Kyoto%2C%20Japan.jpg?width=600" alt="伏见稻荷大社" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">伏见稻荷大社</span></div>
+            <div class="body"><div class="nm" data-path="days.2.slots.3.name">伏见稻荷大社</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.2.slots.3.time">15:00–17:00</span></div><div class="rv" data-path="days.2.slots.3.review">千本鸟居橙色隧道，越往上人越少；稻荷山往返约 2 小时，走一段即可折返。</div><div class="rate">★ 4.8</div><span class="pill">🕘 境内 24 小时（社务所 8:30–16:30）</span><span class="pill">🎫 免费</span><span class="pill season">🍁 10 月初青枫与朱红鸟居相衬，光线柔和的下午最适合拍照</span><span class="pill">🚇 祇园四条→京阪本线→伏见稻荷 · ¥240 · 约 15 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 午餐</div><div class="place">祇园 · 京煎堂（抹茶甜品）</div><div class="hours">营业：10:00–18:00</div><ul><li>抹茶圣代 <span>¥1,200</span></li><li>抹茶蕨饼 <span>¥800</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 晚餐</div><div class="place">京都站拉面小路 / 胜牛炸牛排</div><div class="hours">营业：11:00–22:00</div><ul><li>黑毛和牛炸牛排定食 <span>¥2,200</span></li><li>京都酱油拉面 <span>¥950</span></li></ul></div>
+        <button class="add-slot" data-dayidx="2">＋ 添加景点</button>
+      </div>
+
+      <!-- Day4 10-03 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 4 · 2026-10-03</span><span class="day-week">周六</span></div>
+        <div class="day-theme" data-path="days.3.theme">岚山（小火车 → 天龙寺 → 竹林）→ 金阁寺 → 夜行巴士</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.3.tips.0">岚山小火车周六票紧，务必提前订（开售 1 个月即抢）；龟冈→马堀乘 JR 返程最顺。</span></div><div>· <span data-path="days.3.tips.1">晚上 23:45 前到京都站八条口 Avanti 前集合，GRAND GRACE GR102 23:59 发车，行李放车底舱、随身带小包。</span></div></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.3.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.3.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Torokko-Saga%20Station%20at%20dusk%2020141009.JPG?width=600" alt="岚山小火车（嵯峨→龟冈）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">岚山小火车（嵯峨→龟冈）</span></div>
+            <div class="body"><div class="nm" data-path="days.3.slots.0.name">岚山小火车（嵯峨→龟冈）</div><div class="tm">☀️ 上午 · <span data-path="days.3.slots.0.time">09:00–09:30</span></div><div class="rv" data-path="days.3.slots.0.review">复古观光小火车沿保津川峡谷行驶，红叶季一票难求；提前官网订票选靠河侧座位。</div><div class="rate">★ 4.7</div><span class="pill">🕘 3–12 月运行（周三停运）</span><span class="pill">🎫 单程 ¥880（参考）</span><span class="reminder-badge">⚠️ 建议提前30天订</span><span class="pill">🚇 京都站→JR 山阴本线→嵯峨岚山 · ¥240 · 约 17 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.3.slots.1"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.3.slots.1.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Tenryu-ji%20and%20Pond.jpg?width=600" alt="天龙寺（曹源池庭园）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">天龙寺（曹源池庭园）</span></div>
+            <div class="body"><div class="nm" data-path="days.3.slots.1.name">天龙寺（曹源池庭园）</div><div class="tm">☀️ 上午 · <span data-path="days.3.slots.1.time">09:45–11:00</span></div><div class="rv" data-path="days.3.slots.1.review">世界遗产，岚山核心；曹源池借景龟山，枯山水与回游式庭园并美。</div><div class="rate">★ 4.6</div><span class="pill">🕘 8:30–17:00（庭园 17:30 闭）</span><span class="pill">🎫 庭园 ¥500（参考）</span><span class="pill">🚇 龟冈→JR 马堀→嵯峨岚山 步行 · ¥240 · 约 20 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.3.slots.2"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.3.slots.2.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/2021%20Sagano%20Bamboo%20forest%20in%20Arashiyama%2C%20Kyoto%2C%20Japan.jpg?width=600" alt="竹林小径" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">竹林小径</span></div>
+            <div class="body"><div class="nm" data-path="days.3.slots.2.name">竹林小径</div><div class="tm">☀️ 上午 · <span data-path="days.3.slots.2.time">11:00–11:40</span></div><div class="rv" data-path="days.3.slots.2.review">《卧虎藏龙》同款竹林隧道，晨光透过竹叶最美；人少时段在上午。</div><div class="rate">★ 4.7</div><span class="pill">🕘 全天</span><span class="pill">🎫 免费</span><span class="pill">🚇 天龙寺北门步行 · 免费 · 约 5 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.3.slots.3"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.3.slots.3.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kinkaku-ji%20the%20Golden%20Temple%20in%20Kyoto%20overlooking%20the%20lake%20-%20high%20rez.JPG?width=600" alt="金阁寺（鹿苑寺）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">金阁寺（鹿苑寺）</span></div>
+            <div class="body"><div class="nm" data-path="days.3.slots.3.name">金阁寺（鹿苑寺）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.3.slots.3.time">13:30–15:00</span></div><div class="rv" data-path="days.3.slots.3.review">贴金舍利殿倒映镜湖池，京都名片级景观；入口到展望点一路人较多，耐心排队。</div><div class="rate">★ 4.8</div><span class="pill">🕘 9:00–17:00</span><span class="pill">🎫 ¥500（参考）</span><span class="pill">🚇 岚山→JR 山阴本线→円町→市营 204/205 · 约 ¥320 · 约 40 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.3.slots.4"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.3.slots.4.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/JR%20Kyoto%20Station%20Hachijo%20West%20entrance%20-%20panoramio.jpg?width=600" alt="京都站八条口（夜行巴士集合）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">京都站八条口（夜行巴士集合）</span></div>
+            <div class="body"><div class="nm" data-path="days.3.slots.4.name">京都站八条口（夜行巴士集合）</div><div class="tm">🌙 晚上 · <span data-path="days.3.slots.4.time">23:45 集合 · 23:59 发车</span></div><div class="rv" data-path="days.3.slots.4.review">GRAND GRACE GR102 班次：京都→新宿 Busta 3F，次日 6:25 抵达；上车点 Avanti 前观光巴士乘降处。</div><div class="rate">★ 4.5</div><span class="pill">🕘 夜间发车</span><span class="pill">🎫 约 ¥5,000–8,000</span><span class="reminder-badge">⚠️ 建议提前7天订</span><span class="pill">🚇 金阁寺→市营 205 路→京都站 · ¥230 · 约 45 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 午餐</div><div class="place">岚山 · 汤豆腐（よしむら/三忠）</div><div class="hours">营业：11:00–15:00</div><ul><li>汤豆腐定食 <span>¥2,000</span></li><li>抹茶冰淇淋 <span>¥450</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 晚餐</div><div class="place">京都站地下街便当/拉面</div><div class="hours">营业：至 21:00</div><ul><li>京都站便当+饮料（巴士上吃） <span>¥1,000</span></li></ul></div>
+        <button class="add-slot" data-dayidx="3">＋ 添加景点</button>
+      </div>
+
+      <!-- Day5 10-04 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 5 · 2026-10-04</span><span class="day-week">周日</span></div>
+        <div class="day-theme" data-path="days.4.theme">东京 · 晴空塔 → 隅田公园 → 浅草 → 上野 → 秋叶原</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.4.tips.0">夜巴 6:25 到新宿 Busta 后，乘山手线到五反田酒店寄放行李再出发（约 10 分钟）。</span></div><div>· <span data-path="days.4.tips.1">秋叶原采购清单：Warhammer/Fogeworld 模型、相机镜头与电池、Big Camera 7 楼胶佬工具；骏河屋中古周边按成色淘。</span></div></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.4.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.4.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku%20Expressway%20Bus%20Terminal%202020.JPG?width=600" alt="新宿 Busta 3F（夜巴抵达）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">新宿 Busta 3F（夜巴抵达）</span></div>
+            <div class="body"><div class="nm" data-path="days.4.slots.0.name">新宿 Busta 3F（夜巴抵达）</div><div class="tm">☀️ 上午 · <span data-path="days.4.slots.0.time">06:25 抵达</span></div><div class="rv" data-path="days.4.slots.0.review">GRAND GRACE 终点，下楼换 JR 山手线；清晨的新宿人少，先吃个便利店早餐。</div><div class="rate">★ 4.4</div><span class="pill">🕘 巴士站 24 小时</span><span class="pill">🚇 JR 山手线 新宿→五反田 · ¥150 · 约 10 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.4.slots.1"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.4.slots.1.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Tokyo%20Skytree%202014%20%E2%85%A2.jpg?width=600" alt="东京晴空塔（天望甲板/回廊）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">东京晴空塔（天望甲板/回廊）</span></div>
+            <div class="body"><div class="nm" data-path="days.4.slots.1.name">东京晴空塔（天望甲板/回廊）</div><div class="tm">☀️ 上午 · <span data-path="days.4.slots.1.time">09:30–11:30</span></div><div class="rv" data-path="days.4.slots.1.review">634m 世界第一高塔；350m 甲板看东京全景，450m 回廊玻璃步道更刺激。</div><div class="rate">★ 4.8</div><span class="pill">🕘 10:00–21:00</span><span class="pill">🎫 甲板 ¥2,100 / 回廊 ¥3,100（参考）</span><span class="reminder-badge">⚠️ 建议提前3天订</span><span class="pill season">🍁 10 月秋季点灯与日落衔接，黄昏场次最抢手</span><span class="pill">🚇 五反田→山手线→新桥→浅草线→押上 · 约 ¥400 · 约 40 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.4.slots.2"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.4.slots.2.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Sumida%20Park%20%2C%202011.JPG?width=600" alt="隅田公园（晴空塔合影）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">隅田公园（晴空塔合影）</span></div>
+            <div class="body"><div class="nm" data-path="days.4.slots.2.name">隅田公园（晴空塔合影）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.4.slots.2.time">11:30–12:15</span></div><div class="rv" data-path="days.4.slots.2.review">隅田川对岸仰拍晴空塔的经典机位，春天樱花、秋天散步都舒服。</div><div class="rate">★ 4.5</div><span class="pill">🕘 全天</span><span class="pill">🎫 免费</span><span class="pill">🚇 押上步行过桥 · 免费 · 约 15 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.4.slots.3"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.4.slots.3.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Sensoji%2CAsakusa.JPG?width=600" alt="浅草寺 · 雷门 · 仲见世" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">浅草寺 · 雷门 · 仲见世</span></div>
+            <div class="body"><div class="nm" data-path="days.4.slots.3.name">浅草寺 · 雷门 · 仲见世</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.4.slots.3.time">12:30–13:30</span></div><div class="rv" data-path="days.4.slots.3.review">雷门大灯笼、仲见世人形烧与雷おこし；本堂抽签求签，浅草是下町风情代表。</div><div class="rate">★ 4.7</div><span class="pill">🕘 本堂 6:00–17:00</span><span class="pill">🎫 免费</span><span class="pill">🚇 隅田公园步行 · 免费 · 约 10 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.4.slots.4"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.4.slots.4.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/ToriAtUenoPark.JPG?width=600" alt="上野公园 · 阿美横町" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">上野公园 · 阿美横町</span></div>
+            <div class="body"><div class="nm" data-path="days.4.slots.4.name">上野公园 · 阿美横町</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.4.slots.4.time">14:00–16:00</span></div><div class="rv" data-path="days.4.slots.4.review">东京国立博物馆看特展，不忍池散步，阿美横町扫药妆零食；公园免费。</div><div class="rate">★ 4.6</div><span class="pill">🕘 公园全天；博物馆 9:30–17:00（周一休）</span><span class="pill">🎫 公园免费；国立博物馆 ¥1,000（参考）</span><span class="pill">🚇 浅草→银座线→上野 · ¥180 · 约 10 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.4.slots.5"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.4.slots.5.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Akihabara%20Dai%20bdg%2007b.JPG?width=600" alt="秋叶原（采购 + 女仆咖啡）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">秋叶原（采购 + 女仆咖啡）</span></div>
+            <div class="body"><div class="nm" data-path="days.4.slots.5.name">秋叶原（采购 + 女仆咖啡）</div><div class="tm">🌙 晚上 · <span data-path="days.4.slots.5.time">16:30–19:30</span></div><div class="rv" data-path="days.4.slots.5.review">电器街与宅文化中心：骏河屋中古、Big Camera 相机与模型工具、女仆咖啡体验。</div><div class="rate">★ 4.7</div><span class="pill">🕘 多数店铺 10:00–21:00</span><span class="pill">🎫 丰俭由人</span><span class="pill">🚇 上野→JR 山手线→秋叶原 · ¥150 · 约 4 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 午餐</div><div class="place">浅草 · 仲见世人形烧 / 上野 · 宇奈とと鳗鱼饭</div><div class="hours">营业：11:00–20:00</div><ul><li>蒲烧鳗鱼饭（小份） <span>¥1,000</span></li><li>人形烧 10 个 <span>¥500</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 晚餐</div><div class="place">秋叶原 · 咖喱/拉面（CoCo 壱番屋等）</div><div class="hours">营业：至 23:00</div><ul><li>猪排咖喱饭 <span>¥980</span></li><li>秋叶原系拉面 <span>¥1,100</span></li></ul></div>
+        <button class="add-slot" data-dayidx="4">＋ 添加景点</button>
+      </div>
+
+      <!-- Day6 10-05 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 6 · 2026-10-05</span><span class="day-week">周一</span></div>
+        <div class="day-theme" data-path="days.5.theme">东京站 → 皇居 → 明治神宫 → 代代木公园 → 涩谷</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.5.tips.0">皇居东御苑周一/周五闭园，10.05 为周一——改走皇居外苑·二重桥一带（免费开放）。</span></div><div>· <span data-path="days.5.tips.1">上午东京站+皇居，午后明治神宫→代代木公园→涩谷，正好顺山手线一环不走回头路。</span></div></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.5.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.5.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Tokyo%20Station%20Marunouchi%20Building%20-%20DSC09668.JPG?width=600" alt="东京站 · 丸之内站舍" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">东京站 · 丸之内站舍</span></div>
+            <div class="body"><div class="nm" data-path="days.5.slots.0.name">东京站 · 丸之内站舍</div><div class="tm">☀️ 上午 · <span data-path="days.5.slots.0.time">09:30–10:15</span></div><div class="rv" data-path="days.5.slots.0.review">百年红砖站舍，站前广场与 KITTE 屋顶是经典机位；站内一番街买伴手礼。</div><div class="rate">★ 4.6</div><span class="pill">🕘 站舍全天；商店 10:00–20:00</span><span class="pill">🎫 免费</span><span class="pill">🚇 五反田→JR 山手线→东京 · ¥180 · 约 20 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.5.slots.1"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.5.slots.1.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Imperial%20Palace%20Tokyo%20Sakashita%20Mon%20and%20Imperial%20Household.JPG?width=600" alt="皇居外苑 · 二重桥" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">皇居外苑 · 二重桥</span></div>
+            <div class="body"><div class="nm" data-path="days.5.slots.1.name">皇居外苑 · 二重桥</div><div class="tm">☀️ 上午 · <span data-path="days.5.slots.1.time">10:30–12:00</span></div><div class="rv" data-path="days.5.slots.1.review">二重桥与护城河松树，开阔的外苑适合散步；东御苑今日闭园，改走外苑即可。</div><div class="rate">★ 4.5</div><span class="pill">🕘 外苑全天开放</span><span class="pill">🎫 免费</span><span class="pill">🚇 东京站步行 · 免费 · 约 10 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.5.slots.2"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.5.slots.2.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Meiji-jingu%20torii.JPG?width=600" alt="明治神宫" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">明治神宫</span></div>
+            <div class="body"><div class="nm" data-path="days.5.slots.2.name">明治神宫</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.5.slots.2.time">13:00–14:30</span></div><div class="rv" data-path="days.5.slots.2.review">东京最大神社，森林参道与巨大鸟居；10 月初仍绿意葱茏，御苑与宝物殿值得一进。</div><div class="rate">★ 4.8</div><span class="pill">🕘 日出–日落（宝物殿 9:00–16:00）</span><span class="pill">🎫 免费</span><span class="pill">🚇 东京站→千代田线→明治神宫前（原宿） · ¥200 · 约 25 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.5.slots.3"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.5.slots.3.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Yoyogi%20Park%202.JPG?width=600" alt="代代木公园" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">代代木公园</span></div>
+            <div class="body"><div class="nm" data-path="days.5.slots.3.name">代代木公园</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.5.slots.3.time">14:30–15:30</span></div><div class="rv" data-path="days.5.slots.3.review">明治神宫旁的城市绿洲，周末常有市集与街头艺人，草坪上躺平晒太阳。</div><div class="rate">★ 4.5</div><span class="pill">🕘 全天</span><span class="pill">🎫 免费</span><span class="pill">🚇 明治神宫步行 · 免费 · 约 10 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.5.slots.4"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.5.slots.4.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Shibuya%20crossing1.JPG?width=600" alt="涩谷（十字路口 + SHIBUYA SKY）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">涩谷（十字路口 + SHIBUYA SKY）</span></div>
+            <div class="body"><div class="nm" data-path="days.5.slots.4.name">涩谷（十字路口 + SHIBUYA SKY）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.5.slots.4.time">16:00–19:00</span></div><div class="rv" data-path="days.5.slots.4.review">世界最繁忙十字路口、忠犬八公像；SHIBUYA SKY 屋顶看日落东京，潮牌与药妆集中。</div><div class="rate">★ 4.7</div><span class="pill">🕘 SHIBUYA SKY 10:00–22:00</span><span class="pill">🎫 SHIBUYA SKY ¥2,000（参考）</span><span class="pill season">🍁 10 月中旬起涩谷万圣节装饰渐浓，夜晚街头氛围感拉满</span><span class="pill">🚇 代代木公园步行/千代田线 1 站 · 免费 · 约 15 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 午餐</div><div class="place">原宿/涩谷 · 回转寿司（根室花まる等）</div><div class="hours">营业：11:00–22:00</div><ul><li>回转寿司 8 贯 <span>¥1,800</span></li><li>抹茶布丁 <span>¥350</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 晚餐</div><div class="place">涩谷 · 一兰拉面 / 鸟贵族</div><div class="hours">营业：至 24:00</div><ul><li>天然豚骨拉面 <span>¥980</span></li><li>烤鸡串 5 本 <span>¥1,400</span></li></ul></div>
+        <button class="add-slot" data-dayidx="5">＋ 添加景点</button>
+      </div>
+
+      <!-- Day7 10-06 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 7 · 2026-10-06</span><span class="day-week">周二</span></div>
+        <div class="day-theme" data-path="days.6.theme">自由日（原计划空白，以下为建议方案）</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.6.tips.0">原行程 10.06 未安排，给两个可选方向：A 新宿御苑+原宿表参道（轻休闲）；B 台场+丰洲（亲子/科技向，需预约 teamLab）。</span></div><div>· <span data-path="days.6.tips.1">若想补购物：银座、池袋、秋叶原二刷都顺山手线；傍晚回五反田整理行李。</span></div></div>
+        <div class="alternatives"><b>🔀 当日可选方案</b><p>🔸 <b>方案 A · 新宿御苑 × 原宿表参道</b>：<span data-path="days.6.alternatives.0.summary">新宿御苑秋色散步（¥500）→ 表参道精品街 → 涩谷/池袋补货，全程山手线+步行，轻松收尾</span></p><p>🔸 <b>方案 B · 台场 × 丰洲</b>：<span data-path="days.6.alternatives.1.summary">teamLab Planets 沉浸展（丰洲，需官网预约 ¥3,200）→ 台场海滨公园看彩虹大桥 → 高达像/夜景</span></p></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.6.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.6.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku%20Gyoen%20National%20Garden%20-%20DSC05147.JPG?width=600" alt="新宿御苑（秋色散步）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">新宿御苑（秋色散步）</span></div>
+            <div class="body"><div class="nm" data-path="days.6.slots.0.name">新宿御苑（秋色散步）</div><div class="tm">☀️ 上午 · <span data-path="days.6.slots.0.time">09:30–12:00</span></div><div class="rv" data-path="days.6.slots.0.review">东京市中心最大的日式庭园，10 月初秋色初染，草坪与茶室惬意。</div><div class="rate">★ 4.7</div><span class="pill">🕘 9:00–16:30（周一休）</span><span class="pill">🎫 ¥500（参考）</span><span class="pill">🚇 五反田→JR 山手线→新宿 · ¥150 · 约 10 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.6.slots.1"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.6.slots.1.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Omotesando%202007%20b.JPG?width=600" alt="原宿 · 表参道" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">原宿 · 表参道</span></div>
+            <div class="body"><div class="nm" data-path="days.6.slots.1.name">原宿 · 表参道</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.6.slots.1.time">13:00–15:30</span></div><div class="rv" data-path="days.6.slots.1.review">表参道精品街+原宿竹下通，潮牌、杂货、可丽饼；明治神宫前站直达。</div><div class="rate">★ 4.6</div><span class="pill">🕘 商店约 10:00–20:00</span><span class="pill">🎫 免费逛街</span><span class="pill">🚇 新宿→JR 山手线→原宿 · ¥150 · 约 8 分钟</span></div>
+          </div>
+          <div class="slot" data-slotpath="days.6.slots.2"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.6.slots.2.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ikebukuro%20dsc04823.jpg?width=600" alt="池袋（补购物/乙女路）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">池袋（补购物/乙女路）</span></div>
+            <div class="body"><div class="nm" data-path="days.6.slots.2.name">池袋（补购物/乙女路）</div><div class="tm">🌤️ 中午/下午 · <span data-path="days.6.slots.2.time">16:00–18:30</span></div><div class="rv" data-path="days.6.slots.2.review">若还没买够：池袋阳光城、Animate 本店与乙女路，二次元浓度与秋叶原相当。</div><div class="rate">★ 4.4</div><span class="pill">🕘 商店约 10:00–21:00</span><span class="pill">🎫 丰俭由人</span><span class="pill">🚇 原宿→JR 山手线→池袋 · ¥180 · 约 15 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 午餐</div><div class="place">新宿御苑附近 / 表参道咖啡</div><div class="hours">营业：11:00–20:00</div><ul><li>招牌松饼 <span>¥1,300</span></li><li>法式吐司 <span>¥1,400</span></li></ul></div>
+        <div class="dining"><div class="meal">🍽️ 晚餐</div><div class="place">池袋 · 无敌家拉面 / 居酒屋</div><div class="hours">营业：至 23:00</div><ul><li>浓厚豚骨拉面 <span>¥950</span></li><li>串烧拼盘 <span>¥1,200</span></li></ul></div>
+        <button class="add-slot" data-dayidx="6">＋ 添加景点</button>
+      </div>
+
+      <!-- Day8 10-07 -->
+      <div class="day-card">
+        <div class="day-head"><span class="day-date">Day 8 · 2026-10-07</span><span class="day-week">周三</span></div>
+        <div class="day-theme" data-path="days.7.theme">返程 · 羽田 T3 → 香港</div>
+        <div class="day-tips"><b>💡 当日提示</b><div>· <span data-path="days.7.tips.0">CX503 10:05 起飞，建议 07:00 前从五反田出发（山手线→品川→京急线约 35–45 分钟），提前 2 小时到机场。</span></div><div>· <span data-path="days.7.tips.1">羽田 T3 免税店与伴手礼充足，值机后留 1 小时采购。</span></div></div>
+        <div class="slots-grid">
+          <div class="slot" data-slotpath="days.7.slots.0"><button class="del-slot" title="删除此景点">✕</button>
+            <div class="ph" data-imgpath="days.7.slots.0.photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Haneda%20International%20Terminal%20and%20Station.JPG?width=600" alt="羽田机场 T3（值机 + 免税购物）" loading="lazy" onerror="this.style.display='none'"><span class="ph-name">羽田机场 T3（值机 + 免税购物）</span></div>
+            <div class="body"><div class="nm" data-path="days.7.slots.0.name">羽田机场 T3（值机 + 免税购物）</div><div class="tm">☀️ 上午 · <span data-path="days.7.slots.0.time">07:45 抵达 · 10:05 起飞</span></div><div class="rv" data-path="days.7.slots.0.review">CX503 返程香港 13:50 落地；T3 出境后免税店买伴手礼，东京香蕉、薯条三兄弟。</div><div class="rate">★ 4.6</div><span class="pill">🕘 航站楼 24 小时</span><span class="pill">🚇 五反田→山手线→品川→京急空港线 · 约 ¥500 · 约 40 分钟</span></div>
+          </div>
+        </div>
+        <div class="dining"><div class="meal">🍽️ 早餐</div><div class="place">羽田 T3 出发层简餐/便利店</div><div class="hours">营业：05:30 起</div><ul><li>饭团+咖啡 <span>¥600</span></li></ul></div>
+        <button class="add-slot" data-dayidx="7">＋ 添加景点</button>
+      </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 全程贴士 ===== -->
+    <section>
+      <h2 class="sec-title"><span class="bar"></span>全程实用贴士</h2>
+      <ul class="tips-list">
+        <li data-path="tips.0">日本轨道交通末班车多在 23:00–0:30，夜游注意末班时间；Suica 余额不足可在便利店或车站充值机充值。</li>
+        <li data-path="tips.1">便利店（7-11/全家/罗森）是早餐与补给的万能选项；街上垃圾桶少，随身带一个小垃圾袋。</li>
+        <li data-path="tips.2">寺庙神社多数 16:30–17:30 停止入内，把需要买票/进殿的项目排在上午，下午留给逛街。</li>
+        <li data-path="tips.3">餐厅高峰 12:00–13:00、18:00–19:30，错峰几乎不排队；日本餐厅多为自助点餐或排队等位，没有催单文化。</li>
+        <li data-path="tips.4">购物满 5,000 日元（不含税）可办免税，随身带护照；药妆/电器认准「免税」标识，秋叶原 Big Camera 7 楼有模型工具专区。</li>
+        <li data-path="tips.5">宅急便：10.02 大阪退房时把大件行李寄到下一家酒店（约 1–2 天达），轻装游玩；10.03 夜巴随身只带小包。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    本页为离线可读的单文件 HTML：文字行程离线可用；地图瓦片与景点图片需联网（加载失败时自动降级为色块）。<br>
+    价格单位：日元（JPY）· 所有信息为 AI 整理参考，请以官方渠道核实。
+  </footer>
+</div>
+
+<!-- ===== 浮动编辑工具 ===== -->
+<div class="editbar">
+  <button id="btn-edit">✏️ 编辑</button>
+  <button id="btn-export">⬇️ 导出 HTML</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ================= trip 数据（数据源：与上方静态内容一致；后续迭代可改这里再重渲染） ================= -->
+<script id="trip-data" type="application/json">
+{
+  "title": "日本 9.30–10.07 · 关西 × 东京 8 日",
+  "startDate": "2026-09-30",
+  "colorScheme": "暖白 × 朱红 × 金（亮色日式和风）",
+  "preTrip": {
+    "weather": { "summary": "9 月底–10 月初：大阪/京都白天 21–27°C、夜间 15–19°C；东京白天 19–25°C。早晚温差明显、午间日照仍强。", "typhoon": "10 月初仍处台风季末期，出发前 3 天起关注日本气象厅（JMA）台风/暴雨预警。" },
+    "packing": "长袖衬衫/薄卫衣 + 防风外套（早晚凉），舒适步行鞋，折叠伞，便携充电宝。",
+    "payment": "手机 Suica/Pasmo（Apple 钱包可加卡），另备 2–3 万日元现金，VISA/Master 信用卡通用。",
+    "apps": ["Google Maps", "乗換案内", "Visit Japan Web", "Google 翻译"],
+    "ticketTip": "岚山小火车提前 1 个月开售；夜行巴士 GRAND GRACE 提前 7 天订；晴空塔可提前 3 天官网购票。"
+  },
+  "flights": {
+    "booked": [
+      { "label": "CX502 香港 → 大阪（去程）", "code": "CX502", "time": "9.30 16:30（HK）→ 21:15（JP）· 香港T1 → 关西国际T1" },
+      { "label": "CX503 东京 → 香港（返程）", "code": "CX503", "time": "10.07 10:05（JP）→ 13:50（HK）· 羽田T3 → 香港T1" }
+    ],
+    "candidates": []
+  },
+  "hotelAreas": [
+    { "area": "大阪 · 梅田", "reason": "机场利木津巴士直达、JR/地铁枢纽，去大阪城、难波、京都都方便。", "options": [ { "tier": "已预订", "name": "宜必思大阪梅田酒店（Ibis Osaka Umeda）", "priceRange": "约 ¥700–900/晚", "note": "9.30–10.02 两晚；退房时办理宅急送行李到下一家酒店。" } ] },
+    { "area": "京都 · 京都站", "reason": "紧邻京都站：去清水寺、伏见稻荷、岚山的交通枢纽，也是夜行巴士上车点。", "options": [ { "tier": "已预订", "name": "京都站精英酒店（Kyoto Station Elite Hotel）", "priceRange": "约 ¥500–700/晚", "note": "10.02–10.03 一晚；站前收宅急便行李。" } ] },
+    { "area": "东京 · 五反田", "reason": "JR 山手线直达涩谷、东京站、上野、秋叶原，距羽田机场约 35 分钟。", "options": [ { "tier": "已预订", "name": "五反田京王布莱索酒店（Keio Presso Inn Gotanda）", "priceRange": "约 ¥600–900/晚", "note": "10.04–10.07 三晚；夜巴到新宿后乘山手线 10 分钟即达。" } ] }
+  ],
+  "disclaimer": "本页全部信息（天气、航班、酒店、餐厅、景点、门票、价格、营业时间、评分、活动等）均为 AI 基于公开资料整理的参考建议，可能不准确或已过时，不保证与实时情况一致；请务必在官方渠道 / 订票订房 / 地图等 App 上核实后再做决定或前往。",
+  "tips": [
+    "日本轨道交通末班车多在 23:00–0:30，夜游注意末班时间；Suica 余额不足可在便利店或车站充值机充值。",
+    "便利店（7-11/全家/罗森）是早餐与补给的万能选项；街上垃圾桶少，随身带一个小垃圾袋。",
+    "寺庙神社多数 16:30–17:30 停止入内，把需要买票/进殿的项目排在上午。",
+    "餐厅高峰 12:00–13:00、18:00–19:30，错峰几乎不排队。",
+    "购物满 5,000 日元（不含税）可办免税，随身带护照；秋叶原 Big Camera 7 楼有模型工具专区。",
+    "宅急便：10.02 大阪退房时把大件行李寄到下一家酒店（约 1–2 天达），轻装游玩。"
+  ],
+  "reminders": [
+    { "item": "填写 Visit Japan Web（入境审查+海关申报）", "leadDays": 14 },
+    { "item": "预订岚山小火车（嵯峨野观光铁道）车票", "leadDays": 30 },
+    { "item": "预订 GRAND GRACE GR102 夜行巴士（京都→新宿）", "leadDays": 7 },
+    { "item": "预订晴空塔展望台门票（可选）", "leadDays": 3 },
+    { "item": "开通手机 eSIM/漫游 + 备好现金", "leadDays": 3 }
+  ],
+  "days": [
+    { "date": "2026-09-30", "weekday": "周三", "theme": "出发日 · 深圳 → 香港 → 大阪",
+      "slots": [
+        { "period": "evening", "name": "关西国际机场 T1", "time": "21:15 抵达", "lat": 34.4347, "lng": 135.2431, "rating": 4.4, "review": "CX502 落地，入境审查+取行李。", "openingHours": "入境审查 24 小时", "needsBooking": false, "leadDays": 0 },
+        { "period": "evening", "name": "宜必思大阪梅田酒店（Check-in）", "time": "约 22:30", "lat": 34.7046, "lng": 135.4990, "rating": 4.3, "review": "梅田商圈连锁酒店，楼下便利店齐全。", "needsBooking": false, "leadDays": 0 }
+      ] },
+    { "date": "2026-10-01", "weekday": "周四", "theme": "大阪城 · 难波板块",
+      "slots": [
+        { "period": "morning", "name": "大阪天满宫", "time": "09:30–10:30", "lat": 34.6998, "lng": 135.5104, "rating": 4.5, "review": "学问之神菅原道真，西日本最大天满宫之一。", "ticketPrice": "免费", "needsBooking": false, "leadDays": 0 },
+        { "period": "morning", "name": "大阪城（天守阁）", "time": "10:45–12:30", "lat": 34.6873, "lng": 135.5262, "rating": 4.7, "review": "丰臣秀吉的大阪城，天守阁俯瞰全城。", "ticketPrice": "天守阁 ¥600（参考）", "needsBooking": false, "leadDays": 0 },
+        { "period": "noon", "name": "天神桥筋商店街 或 黑门市场（午餐）", "time": "12:30–14:00", "lat": 34.6644, "lng": 135.5056, "rating": 4.4, "review": "黑门市场吃海鲜刺身、和牛串。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "难波八坂神社（可选）", "time": "14:15–14:45", "lat": 34.6647, "lng": 135.5049, "rating": 4.6, "review": "巨大狮子头神殿「狮殿」网红打卡点。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "心斋桥（逛街 + Harbs）", "time": "15:00–17:00", "lat": 34.6748, "lng": 135.5015, "rating": 4.6, "review": "拱廊购物街：药妆、潮牌；Harbs 水果千层必吃。", "needsBooking": false, "leadDays": 0 },
+        { "period": "evening", "name": "道顿堀（晚餐+夜景）", "time": "17:30–20:00", "lat": 34.6687, "lng": 135.5013, "rating": 4.8, "review": "格力高跑男、蟹道乐、章鱼烧一条街。", "needsBooking": false, "leadDays": 0 }
+      ] },
+    { "date": "2026-10-02", "weekday": "周五", "theme": "京都 · 清水寺 → 八坂神社 → 祇园 → 伏见稻荷",
+      "slots": [
+        { "period": "morning", "name": "清水寺", "time": "09:00–11:00", "lat": 34.9949, "lng": 135.7850, "rating": 4.8, "review": "世界遗产，悬空舞台望京都全景。", "ticketPrice": "¥400（参考）", "needsBooking": false, "leadDays": 0 },
+        { "period": "noon", "name": "八坂神社", "time": "11:30–12:30", "lat": 35.0038, "lng": 135.7787, "rating": 4.6, "review": "祇园的守护神社，西楼门灯笼经典机位。", "needsBooking": false, "leadDays": 0 },
+        { "period": "noon", "name": "祇园 · 花见小路（午餐）", "time": "12:30–14:00", "lat": 35.0035, "lng": 135.7767, "rating": 4.7, "review": "京都最具风情的花街，町屋建筑与茶屋。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "伏见稻荷大社", "time": "15:00–17:00", "lat": 34.9671, "lng": 135.7727, "rating": 4.8, "review": "千本鸟居橙色隧道，越往上人越少。", "needsBooking": false, "leadDays": 0 }
+      ] },
+    { "date": "2026-10-03", "weekday": "周六", "theme": "岚山（小火车 → 天龙寺 → 竹林）→ 金阁寺 → 夜行巴士",
+      "slots": [
+        { "period": "morning", "name": "岚山小火车（嵯峨→龟冈）", "time": "09:00–09:30", "lat": 35.0186, "lng": 135.6800, "rating": 4.7, "review": "复古小火车沿保津川峡谷行驶，红叶季一票难求。", "ticketPrice": "单程 ¥880（参考）", "needsBooking": true, "leadDays": 30 },
+        { "period": "morning", "name": "天龙寺（曹源池庭园）", "time": "09:45–11:00", "lat": 35.0166, "lng": 135.6712, "rating": 4.6, "review": "世界遗产，岚山核心；曹源池借景龟山。", "ticketPrice": "庭园 ¥500（参考）", "needsBooking": false, "leadDays": 0 },
+        { "period": "morning", "name": "竹林小径", "time": "11:00–11:40", "lat": 35.0174, "lng": 135.6718, "rating": 4.7, "review": "《卧虎藏龙》同款竹林隧道。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "金阁寺（鹿苑寺）", "time": "13:30–15:00", "lat": 35.0394, "lng": 135.7292, "rating": 4.8, "review": "贴金舍利殿倒映镜湖池，京都名片。", "ticketPrice": "¥500（参考）", "needsBooking": false, "leadDays": 0 },
+        { "period": "evening", "name": "京都站八条口（夜行巴士集合）", "time": "23:45 集合 · 23:59 发车", "lat": 34.9807, "lng": 135.7585, "rating": 4.5, "review": "GRAND GRACE GR102 → 新宿 Busta 3F，次日 6:25 抵达。", "needsBooking": true, "leadDays": 7 }
+      ] },
+    { "date": "2026-10-04", "weekday": "周日", "theme": "东京 · 晴空塔 → 隅田公园 → 浅草 → 上野 → 秋叶原",
+      "slots": [
+        { "period": "morning", "name": "新宿 Busta 3F（夜巴抵达）", "time": "06:25", "lat": 35.6896, "lng": 139.7006, "rating": 4.4, "review": "GRAND GRACE 终点，换 JR 山手线去五反田寄行李。", "needsBooking": false, "leadDays": 0 },
+        { "period": "morning", "name": "东京晴空塔（天望甲板/回廊）", "time": "09:30–11:30", "lat": 35.7101, "lng": 139.8107, "rating": 4.8, "review": "634m 世界第一高塔，450m 玻璃步道。", "ticketPrice": "甲板 ¥2,100 / 回廊 ¥3,100（参考）", "needsBooking": true, "leadDays": 3 },
+        { "period": "noon", "name": "隅田公园（晴空塔合影）", "time": "11:30–12:15", "lat": 35.7114, "lng": 139.7965, "rating": 4.5, "review": "隅田川对岸仰拍晴空塔经典机位。", "needsBooking": false, "leadDays": 0 },
+        { "period": "noon", "name": "浅草寺 · 雷门 · 仲见世", "time": "12:30–13:30", "lat": 35.7148, "lng": 139.7967, "rating": 4.7, "review": "雷门大灯笼、仲见世人形烧。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "上野公园 · 阿美横町", "time": "14:00–16:00", "lat": 35.7153, "lng": 139.7738, "rating": 4.6, "review": "东京国立博物馆、不忍池、阿美横町扫货。", "needsBooking": false, "leadDays": 0 },
+        { "period": "evening", "name": "秋叶原（采购 + 女仆咖啡）", "time": "16:30–19:30", "lat": 35.6984, "lng": 139.7731, "rating": 4.7, "review": "骏河屋中古、Big Camera 相机与模型工具。", "needsBooking": false, "leadDays": 0 }
+      ] },
+    { "date": "2026-10-05", "weekday": "周一", "theme": "东京站 → 皇居 → 明治神宫 → 代代木公园 → 涩谷",
+      "slots": [
+        { "period": "morning", "name": "东京站 · 丸之内站舍", "time": "09:30–10:15", "lat": 35.6812, "lng": 139.7671, "rating": 4.6, "review": "百年红砖站舍，站内一番街买伴手礼。", "needsBooking": false, "leadDays": 0 },
+        { "period": "morning", "name": "皇居外苑 · 二重桥", "time": "10:30–12:00", "lat": 35.6852, "lng": 139.7528, "rating": 4.5, "review": "二重桥与护城河松树（东御苑周一闭园，改走外苑）。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "明治神宫", "time": "13:00–14:30", "lat": 35.6764, "lng": 139.6993, "rating": 4.8, "review": "东京最大神社，森林参道与巨大鸟居。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "代代木公园", "time": "14:30–15:30", "lat": 35.6714, "lng": 139.6948, "rating": 4.5, "review": "明治神宫旁城市绿洲，草坪躺平晒太阳。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "涩谷（十字路口 + SHIBUYA SKY）", "time": "16:00–19:00", "lat": 35.6595, "lng": 139.7005, "rating": 4.7, "review": "世界最繁忙十字路口、SHIBUYA SKY 屋顶日落。", "needsBooking": false, "leadDays": 0 }
+      ] },
+    { "date": "2026-10-06", "weekday": "周二", "theme": "自由日（建议方案）",
+      "slots": [
+        { "period": "morning", "name": "新宿御苑（秋色散步）", "time": "09:30–12:00", "lat": 35.6852, "lng": 139.7100, "rating": 4.7, "review": "东京市中心最大日式庭园。", "ticketPrice": "¥500（参考）", "needsBooking": false, "leadDays": 0 },
+        { "period": "noon", "name": "原宿 · 表参道", "time": "13:00–15:30", "lat": 35.6658, "lng": 139.7105, "rating": 4.6, "review": "表参道精品街+原宿竹下通。", "needsBooking": false, "leadDays": 0 },
+        { "period": "afternoon", "name": "池袋（补购物/乙女路）", "time": "16:00–18:30", "lat": 35.7295, "lng": 139.7109, "rating": 4.4, "review": "池袋阳光城、Animate 本店与乙女路。", "needsBooking": false, "leadDays": 0 }
+      ] },
+    { "date": "2026-10-07", "weekday": "周三", "theme": "返程 · 羽田 T3 → 香港",
+      "slots": [
+        { "period": "morning", "name": "羽田机场 T3（值机 + 免税购物）", "time": "07:45 抵达 · 10:05 起飞", "lat": 35.5494, "lng": 139.7850, "rating": 4.6, "review": "CX503 返程香港 13:50 落地；T3 免税店买伴手礼。", "needsBooking": false, "leadDays": 0 }
+      ] }
+  ]
+}
+</script>
+
+<script>
+/* ============ map.js（内联，含 GCJ 转换） ============ */
+function escapeHTML(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function buildNavLink(lat, lng, label, ua) {
+  if (ua && /iPhone|iPad|iPod/.test(ua)) return 'https://maps.apple.com/?ll=' + lat + ',' + lng + '&q=' + encodeURIComponent(label);
+  return 'geo:' + lat + ',' + lng + '?q=' + lat + ',' + lng + '(' + encodeURIComponent(label) + ')';
+}
+function isInChinaBBox(lat, lng) { return lng >= 72.004 && lng <= 137.8347 && lat >= 0.8293 && lat <= 55.8271; }
+function buildMapAppLinks(lat, lng, label) {
+  var amap = { label: '高德地图', url: 'https://uri.amap.com/marker?position=' + lng + ',' + lat + '&name=' + encodeURIComponent(label) + '&coordinate=wgs84&callnative=1&src=travel-plan-viz' };
+  var google = { label: 'Google 地图', url: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lat + ',' + lng) };
+  return isInChinaBBox(lat, lng) ? [amap] : [google, amap];
+}
+var GCJ_A = 6378245.0, GCJ_EE = 0.00669342162296594323;
+function gcj02ToWgs84(lat, lng) {
+  if (!isInChinaBBox(lat, lng)) return { lat: lat, lng: lng };
+  function tLat(x, y) {
+    var r = -100 + 2*x + 3*y + 0.2*y*y + 0.1*x*y + 0.2*Math.sqrt(Math.abs(x));
+    r += (20*Math.sin(6*x*Math.PI) + 20*Math.sin(2*x*Math.PI)) * 2/3;
+    r += (20*Math.sin(y*Math.PI) + 40*Math.sin(y/3*Math.PI)) * 2/3;
+    r += (160*Math.sin(y/12*Math.PI) + 320*Math.sin(y*Math.PI/30)) * 2/3;
+    return r;
+  }
+  function tLng(x, y) {
+    var r = 300 + x + 2*y + 0.1*x*x + 0.1*x*y + 0.1*Math.sqrt(Math.abs(x));
+    r += (20*Math.sin(6*x*Math.PI) + 20*Math.sin(2*x*Math.PI)) * 2/3;
+    r += (20*Math.sin(x*Math.PI) + 40*Math.sin(x/3*Math.PI)) * 2/3;
+    r += (150*Math.sin(x/12*Math.PI) + 300*Math.sin(x/30*Math.PI)) * 2/3;
+    return r;
+  }
+  var dLat = tLat(lng-105, lat-35), dLng = tLng(lng-105, lat-35);
+  var radLat = lat/180*Math.PI, magic = Math.sin(radLat);
+  magic = 1 - GCJ_EE*magic*magic;
+  var sq = Math.sqrt(magic);
+  dLat = dLat*180 / ((GCJ_A*(1-GCJ_EE))/(magic*sq)*Math.PI);
+  dLng = dLng*180 / (GCJ_A/sq*Math.cos(radLat)*Math.PI);
+  return { lat: lat-dLat, lng: lng-dLng };
+}
+function initTravelMap(elementId, points, opts) {
+  opts = opts || {};
+  var map = L.map(elementId);
+  L.tileLayer(opts.tileUrl || 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: opts.attribution || '&copy; OpenStreetMap &copy; CARTO',
+    maxZoom: 19, detectRetina: true,
+  }).addTo(map);
+  var ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+  points.forEach(function (p, i) {
+    var icon = L.divIcon({ className: 'route-pin', html: '<span class="route-pin__num">' + (i+1) + '</span>', iconSize: [28,28], iconAnchor: [14,14] });
+    var links = [{ label:'导航', url: buildNavLink(p.lat,p.lng,p.name,ua) }].concat(buildMapAppLinks(p.lat,p.lng,p.name));
+    L.marker([p.lat,p.lng], { icon: icon }).addTo(map).bindPopup('<b>'+(i+1)+'. '+escapeHTML(p.name)+'</b><br>'+(p.time?escapeHTML(p.time)+'<br>':'')+links.map(function(l){return '<a href="'+l.url+'">'+escapeHTML(l.label)+'</a>';}).join(' · '));
+  });
+  var coords = points.map(function(p){ return [p.lat,p.lng]; });
+  if (coords.length > 1) L.polyline(coords, { dashArray:'6 8', weight:2, color:'#c2402f' }).addTo(map);
+  map.fitBounds(coords.length ? coords : [[0,0]], { padding:[30,30] });
+  return map;
+}
+</script>
+
+<script>
+/* ============ 编辑模式 + 图片替换 + 导出 ============ */
+(function () {
+  if (typeof window.L === 'undefined') { /* 地图可选加载 */ }
+  var btnEdit = document.getElementById('btn-edit');
+  var btnExport = document.getElementById('btn-export');
+  var toastEl = document.getElementById('toast');
+  var editing = false;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.style.display = 'block';
+    setTimeout(function(){ toastEl.style.display = 'none'; }, 2200);
+  }
+  function setEditable(on) {
+    var els = document.querySelectorAll('[data-path]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].setAttribute('contenteditable', on ? 'true' : 'false');
+    }
+  }
+  btnEdit.addEventListener('click', function () {
+    editing = !editing;
+    document.body.classList.toggle('edit-mode', editing);
+    setEditable(editing);
+    btnEdit.textContent = editing ? '✓ 完成' : '✏️ 编辑';
+    if (editing) { toast('点文字直接修改，点图片换图；完成后点「导出 HTML」保存新文件'); }
+  });
+  btnExport.addEventListener('click', function () {
+    try {
+      // 先退出编辑模式，去掉视觉痕迹，再整体克隆当前文档（保留全部 JS 增强与内联数据）
+      document.body.classList.remove('edit-mode');
+      editing = false;
+      setEditable(false);
+      btnEdit.textContent = '✏️ 编辑';
+      var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      // 清理"刚导出"的提示性残留（若有 toast 显示中）
+      html = html.replace(/<div class="toast"[^>]*>[\s\S]*?<\/div>/, '<div class="toast" id="toast"></div>');
+      // 去掉无意义的内联 style 残留（若存在）
+      html = html.replace(/\scontenteditable="false"/g, '');
+      var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '旅行计划-已编辑.html';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      toast('✅ 已导出「旅行计划-已编辑.html」：内容为纯静态（任何设备/预览方式都能完整显示），地图与编辑功能保留');
+    } catch (e) {
+      toast('导出失败：' + e.message);
+    }
+  });
+  // 点击图片 → 换图（编辑模式下）
+  document.addEventListener('click', function (e) {
+    if (!editing) return;
+    var ph = e.target.closest ? e.target.closest('.ph') : null;
+    if (ph && ph.querySelector('img')) {
+      var img = ph.querySelector('img');
+      var cur = img.src || '';
+      var url = prompt('输入新的图片 URL（留空删除图片）：', cur);
+      if (url === null) return;
+      if (url.trim() === '') { img.style.display = 'none'; ph.querySelector('.ph-name').style.display = ''; toast('已移除图片'); }
+      else { img.src = url.trim(); img.style.display = ''; img.onerror = function(){ this.style.display='none'; }; toast('✅ 图片已替换'); }
+    }
+  });
+  // 删除景点（编辑模式下）
+  document.addEventListener('click', function (e) {
+    if (!editing) return;
+    var del = e.target.closest ? e.target.closest('.del-slot') : null;
+    if (del) {
+      var slot = del.closest('.slot');
+      if (slot && confirm('删除这个景点？')) { slot.remove(); toast('已删除'); }
+    }
+  });
+  // 添加景点（编辑模式下）：在当前天末尾插入一个空模板卡片
+  document.querySelectorAll('.add-slot').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!editing) return;
+      var dayCard = btn.closest('.day-card');
+      var grid = dayCard.querySelector('.slots-grid');
+      var slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.innerHTML =
+        '<button class="del-slot" title="删除此景点">✕</button>' +
+        '<div class="ph" data-imgpath="new"><span class="ph-name">新景点（点文字改名）</span></div>' +
+        '<div class="body">' +
+          '<div class="nm" data-path="new">新景点</div>' +
+          '<div class="tm">🌤️ 中午/下午 · <span data-path="new">时间待定</span></div>' +
+          '<div class="rv" data-path="new">点击编辑点评…（可选：编辑模式下点上方图片可配图）</div>' +
+        '</div>';
+      grid.appendChild(slot);
+      // 新卡片文字同样进入可编辑状态
+      if (editing) {
+        var nEls = slot.querySelectorAll('[data-path]');
+        for (var k = 0; k < nEls.length; k++) { nEls[k].setAttribute('contenteditable', 'true'); }
+      }
+      toast('已添加空白景点：点名称/时间/点评直接编辑；导出后会保留');
+    });
+  });
+})();
+</script>
+
+<script>
+/* ============ Leaflet 多 CDN 加载 + 地图初始化（纯增强，不影响文字） ============ */
+(function () {
+  var jsUrls = [
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.js'
+  ];
+  function loadJs(i) {
+    if (i >= jsUrls.length || window.__leafletLoaded) return;
+    var s = document.createElement('script');
+    s.src = jsUrls[i];
+    s.onload = function () { if (typeof L !== 'undefined') { window.__leafletLoaded = true; tryInit(); } else loadJs(i+1); };
+    s.onerror = function () { loadJs(i+1); };
+    document.head.appendChild(s);
+  }
+  var cssUrls = [
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+    'https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.css'
+  ];
+  function loadCss(i) {
+    if (i >= cssUrls.length || window.__leafletCssLoaded) return;
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = cssUrls[i];
+    l.onload = function () { window.__leafletCssLoaded = true; };
+    l.onerror = function () { loadCss(i+1); };
+    document.head.appendChild(l);
+  }
+  var POINTS = [
+    {name:'关西国际机场 T1', time:'9.30 21:15 抵达', lat:34.4347, lng:135.2431},
+    {name:'宜必思大阪梅田', time:'9.30 入住', lat:34.7046, lng:135.4990},
+    {name:'大阪天满宫', time:'10.01 上午', lat:34.6998, lng:135.5104},
+    {name:'大阪城', time:'10.01 上午', lat:34.6873, lng:135.5262},
+    {name:'天神桥筋/黑门市场', time:'10.01 午餐', lat:34.6644, lng:135.5056},
+    {name:'难波八坂神社', time:'10.01 下午', lat:34.6647, lng:135.5049},
+    {name:'心斋桥', time:'10.01 下午', lat:34.6748, lng:135.5015},
+    {name:'道顿堀', time:'10.01 晚上', lat:34.6687, lng:135.5013},
+    {name:'清水寺', time:'10.02 上午', lat:34.9949, lng:135.7850},
+    {name:'八坂神社', time:'10.02', lat:35.0038, lng:135.7787},
+    {name:'祇园·花见小路', time:'10.02 午餐', lat:35.0035, lng:135.7767},
+    {name:'伏见稻荷大社', time:'10.02 下午', lat:34.9671, lng:135.7727},
+    {name:'岚山小火车', time:'10.03 上午', lat:35.0186, lng:135.6800},
+    {name:'天龙寺', time:'10.03', lat:35.0166, lng:135.6712},
+    {name:'竹林小径', time:'10.03', lat:35.0174, lng:135.6718},
+    {name:'金阁寺', time:'10.03 下午', lat:35.0394, lng:135.7292},
+    {name:'京都站八条口(夜巴)', time:'10.03 23:59', lat:34.9807, lng:135.7585},
+    {name:'新宿Busta(夜巴抵达)', time:'10.04 06:25', lat:35.6896, lng:139.7006},
+    {name:'东京晴空塔', time:'10.04 上午', lat:35.7101, lng:139.8107},
+    {name:'隅田公园', time:'10.04', lat:35.7114, lng:139.7965},
+    {name:'浅草寺·雷门', time:'10.04', lat:35.7148, lng:139.7967},
+    {name:'上野公园·阿美横町', time:'10.04 下午', lat:35.7153, lng:139.7738},
+    {name:'秋叶原', time:'10.04 晚上', lat:35.6984, lng:139.7731},
+    {name:'东京站·丸之内', time:'10.05 上午', lat:35.6812, lng:139.7671},
+    {name:'皇居外苑·二重桥', time:'10.05', lat:35.6852, lng:139.7528},
+    {name:'明治神宫', time:'10.05 下午', lat:35.6764, lng:139.6993},
+    {name:'代代木公园', time:'10.05', lat:35.6714, lng:139.6948},
+    {name:'涩谷', time:'10.05 下午', lat:35.6595, lng:139.7005},
+    {name:'新宿御苑', time:'10.06 上午', lat:35.6852, lng:139.7100},
+    {name:'原宿·表参道', time:'10.06', lat:35.6658, lng:139.7105},
+    {name:'池袋', time:'10.06 下午', lat:35.7295, lng:139.7109},
+    {name:'羽田机场 T3', time:'10.07 返程', lat:35.5494, lng:139.7850}
+  ];
+  function tryInit() {
+    var mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined' || !L.map || window.__mapDone) return;
+    try {
+      window.__mapDone = true;
+      window.__travelMap = initTravelMap('map', POINTS);
+      var sync = function(){ if(window.__travelMap) window.__travelMap.invalidateSize(); };
+      setTimeout(function(){ sync(); }, 400);
+      window.addEventListener('resize', sync);
+      window.addEventListener('orientationchange', function(){ setTimeout(sync, 400); });
+    } catch (e) { mapEl.innerHTML = '<div class="map-fallback">🗺️ 地图初始化失败（不影响文字行程）</div>'; }
+  }
+  loadCss(0);
+  loadJs(0);
+  // 若 Leaflet 已就绪（缓存）直接初始化；否则等待 onload
+  setTimeout(function(){ if (typeof L !== 'undefined') { window.__leafletLoaded = true; tryInit(); } }, 300);
+  setTimeout(function(){ if (!window.__mapDone && mapEl()) { mapEl().innerHTML = '<div class="map-fallback">🗺️ 地图需联网加载，当前环境未加载成功<br>文字行程完整可用</div>'; } }, 12000);
+  function mapEl(){ return document.getElementById('map'); }
+})();
+</script>
+
+</body>
+</html>
