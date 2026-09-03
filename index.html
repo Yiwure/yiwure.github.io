@@ -147,6 +147,39 @@
   .add-slot{display:none; margin-top:10px; width:100%; border:1.5px dashed var(--accent); color:var(--accent); background:transparent; border-radius:12px; padding:10px; font-size:13px; font-weight:700; cursor:pointer;}
   body.edit-mode .add-slot{display:block;}
   .toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:rgba(30,30,30,.9); color:#fff; font-size:13px; padding:10px 18px; border-radius:999px; z-index:2000; display:none;}
+
+  /* ===== 待办完成态 ===== */
+  .todo-item.done .todo-text{text-decoration:line-through; color:#b9b0a0;}
+  .todo-item.done .todo-deadline{opacity:.55;}
+  .todo-progress{display:block; font-size:11.5px; color:var(--gold); margin-top:8px; font-weight:700;}
+
+  /* ===== 拖拽排序 ===== */
+  .slot.sortable-dragging{opacity:.45; transform:scale(.98);}
+  .slot.sortable-over{border:2px dashed var(--accent);}
+  .slot .drag-handle{display:none; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-size:16px; cursor:grab; user-select:none; touch-action:none; flex:none;}
+  body.edit-mode .slot .drag-handle{display:inline-flex;}
+  .slot .slot-tools{display:none; flex-direction:row; gap:6px; padding:6px 8px 0; align-items:center; flex:none;}
+  body.edit-mode .slot .slot-tools{display:flex;}
+  .slot .mv-btn{background:var(--card); border:1px solid var(--border); color:var(--accent); border-radius:999px; width:28px; height:28px; font-size:15px; line-height:1; cursor:pointer; font-weight:700;}
+  .slot .mv-btn:disabled{opacity:.35; cursor:default;}
+
+  /* ===== 新增一天的按钮 ===== */
+  .add-day{display:none; margin:4px 0 18px; width:100%; border:1.5px dashed var(--gold); color:var(--gold); background:transparent; border-radius:14px; padding:12px; font-size:13.5px; font-weight:700; cursor:pointer;}
+  body.edit-mode .add-day{display:block;}
+  .day-card .day-del{display:none !important;}
+  body.edit-mode .day-card .day-del{display:inline-block !important;}
+
+  /* ===== 日程页签（信息提示） ===== */
+  .day-tabs{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 10px;}
+  .day-tab{background:var(--card-soft); border:1px solid var(--border); color:var(--text-dim); border-radius:999px; padding:4px 12px; font-size:12px; cursor:pointer; font-weight:700; transition:all .15s;}
+  .day-tab.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .day-panel{display:none;}
+  .day-panel.active{display:block;}
+  .day-tip-item{font-size:12.5px; margin:3px 0; line-height:1.6;}
+  body.edit-mode .day-tab .tab-del{display:inline-block;}
+  .day-tab .tab-del{display:none; margin-left:6px; color:inherit; font-weight:800; cursor:pointer;}
+  body.edit-mode .tab-add-btn{display:inline-flex;}
+  .tab-add-btn{display:none; background:transparent; border:1.5px dashed var(--accent); color:var(--accent); border-radius:999px; padding:3px 12px; font-size:12px; font-weight:700; cursor:pointer; align-items:center; gap:4px;}
 </style>
 </head>
 <body>
@@ -162,14 +195,14 @@
     <div class="checklist-card">
       <h2>✈️ 出发前待办清单（按截止日排序）</h2>
       <ul class="pretrip-todo">
-        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-16前</span><span class="todo-text">填写 Visit Japan Web（入境审查+海关申报）（建议提前14天）</span></li>
-        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-08-31前</span><span class="todo-text">预订岚山小火车（嵯峨野观光铁道）车票（建议提前30天）</span></li>
-        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-23前</span><span class="todo-text">预订 GRAND GRACE GR102 夜行巴士（京都→新宿）（建议提前7天）</span></li>
-        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-27前</span><span class="todo-text">预订晴空塔展望台门票（可选）（建议提前3天）</span></li>
-        <li class="todo-item"><input type="checkbox"><span class="todo-deadline">2026-09-27前</span><span class="todo-text">开通手机 eSIM/漫游 + 备好现金（建议提前3天）</span></li>
+        <li class="todo-item"><input type="checkbox" data-key="vjw"><span class="todo-deadline">2026-09-16前</span><span class="todo-text">填写 Visit Japan Web（入境审查+海关申报）（建议提前14天）</span></li>
+        <li class="todo-item"><input type="checkbox" data-key="train"><span class="todo-deadline">2026-08-31前</span><span class="todo-text">预订岚山小火车（嵯峨野观光铁道）车票（建议提前30天）</span></li>
+        <li class="todo-item"><input type="checkbox" data-key="nightbus"><span class="todo-deadline">2026-09-23前</span><span class="todo-text">预订 GRAND GRACE GR102 夜行巴士（京都→新宿）（建议提前7天）</span></li>
+        <li class="todo-item"><input type="checkbox" data-key="skytree"><span class="todo-deadline">2026-09-27前</span><span class="todo-text">预订晴空塔展望台门票（可选）（建议提前3天）</span></li>
+        <li class="todo-item"><input type="checkbox" data-key="esim"><span class="todo-deadline">2026-09-27前</span><span class="todo-text">开通手机 eSIM/漫游 + 备好现金（建议提前3天）</span></li>
       </ul>
     </div>
-    <div class="ed-hint">✏️ 编辑模式已开启：点文字直接改，点图片换图；改完点右下「导出 HTML」保存新文件</div>
+    <div class="ed-hint">✏️ 编辑模式：点文字改 / 点图换图 / 拖拽或 ▲▼ 调序 / 加删景点与日程 / 每个日程可用「＋ 页签」添加信息提示</div>
   </header>
 
   <main>
@@ -657,43 +690,615 @@ function initTravelMap(elementId, points, opts) {
 </script>
 
 <script>
-/* ============ 编辑模式 + 图片替换 + 导出 ============ */
+/* ============ 待办清单 + 编辑模式 + 拖拽排序 + 日程页签 + 新增一天 + 地图联动 + 导出 ============ */
 (function () {
-  if (typeof window.L === 'undefined') { /* 地图可选加载 */ }
   var btnEdit = document.getElementById('btn-edit');
   var btnExport = document.getElementById('btn-export');
   var toastEl = document.getElementById('toast');
   var editing = false;
+
+  /* ---------- 通用工具 ---------- */
   function toast(msg) {
     toastEl.textContent = msg;
     toastEl.style.display = 'block';
-    setTimeout(function(){ toastEl.style.display = 'none'; }, 2200);
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ toastEl.style.display = 'none'; }, 2400);
   }
-  function setEditable(on) {
-    var els = document.querySelectorAll('[data-path]');
-    for (var i = 0; i < els.length; i++) {
-      els[i].setAttribute('contenteditable', on ? 'true' : 'false');
+  function closest(el, sel) { return (el && el.closest) ? el.closest(sel) : null; }
+  function isEdit() { return editing; }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  /* ---------- 1) 待办清单：可点击勾选 + localStorage 持久化 ---------- */
+  var TODO_KEY = 'travelTodoState_v1';
+  function loadTodo() {
+    try { return JSON.parse(localStorage.getItem(TODO_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function applyTodoState() {
+    var state = loadTodo();
+    var boxes = $all('.pretrip-todo input[type="checkbox"]');
+    boxes.forEach(function (cb) {
+      var k = cb.getAttribute('data-key');
+      cb.checked = !!state[k];
+      var li = closest(cb, '.todo-item');
+      if (li) li.classList.toggle('done', !!state[k]);
+    });
+    updateTodoProgress();
+  }
+  function updateTodoProgress() {
+    var boxes = $all('.pretrip-todo input[type="checkbox"]');
+    var done = boxes.filter(function (cb) { return cb.checked; }).length;
+    var progEl = $('.todo-progress');
+    if (!progEl) {
+      progEl = document.createElement('span');
+      progEl.className = 'todo-progress';
+      var card = $('.checklist-card');
+      if (card) card.appendChild(progEl);
     }
+    progEl.textContent = '已完成 ' + done + ' / ' + boxes.length;
+  }
+  $all('.pretrip-todo input[type="checkbox"]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var state = loadTodo();
+      state[cb.getAttribute('data-key')] = cb.checked;
+      try { localStorage.setItem(TODO_KEY, JSON.stringify(state)); } catch (e) {}
+      var li = closest(cb, '.todo-item');
+      if (li) li.classList.toggle('done', cb.checked);
+      updateTodoProgress();
+    });
+  });
+  applyTodoState();
+
+  /* ---------- 2) 编辑模式开关 ---------- */
+  function setEditable(on) {
+    var els = $all('[data-path]');
+    for (var i = 0; i < els.length; i++) els[i].setAttribute('contenteditable', on ? 'true' : 'false');
   }
   btnEdit.addEventListener('click', function () {
     editing = !editing;
     document.body.classList.toggle('edit-mode', editing);
     setEditable(editing);
     btnEdit.textContent = editing ? '✓ 完成' : '✏️ 编辑';
-    if (editing) { toast('点文字直接修改，点图片换图；完成后点「导出 HTML」保存新文件'); }
+    if (editing) {
+      refreshSlotTools();
+      toast('编辑模式：可改文字 / 点图换图 / 拖拽或 ▲▼ 调序 / 增删景点与日程 / 管理提示页签');
+    }
   });
+
+  /* ---------- 3) 地图联动：从当前 DOM 收集有序点位 ---------- */
+  function collectPointsFromDOM() {
+    var pts = [];
+    var cards = $all('.day-card');
+    cards.forEach(function (card) {
+      var theme = $('.day-theme', card);
+      var themeTxt = theme ? theme.textContent.trim() : '';
+      $all('.slot', card).forEach(function (slot) {
+        var nm = $('.nm', slot);
+        var tm = $('.tm span', slot) || $('.tm', slot);
+        var lat = parseFloat(slot.getAttribute('data-lat'));
+        var lng = parseFloat(slot.getAttribute('data-lng'));
+        if (!isNaN(lat) && !isNaN(lng)) {
+          pts.push({ name: nm ? nm.textContent.trim() : '', time: (themeTxt ? themeTxt + ' · ' : '') + (tm ? tm.textContent.trim() : ''), lat: lat, lng: lng });
+        }
+      });
+    });
+    return pts;
+  }
+  function refreshMap() {
+    var mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined' || !L.map) return;
+    try {
+      if (window.__travelMap) { window.__travelMap.remove(); window.__travelMap = null; }
+    } catch (e) {}
+    var pts = collectPointsFromDOM();
+    if (!pts.length) { if (mapEl) mapEl.innerHTML = '<div class="map-fallback">暂无地图点位</div>'; return; }
+    try {
+      window.__travelMap = initTravelMap('map', pts);
+      setTimeout(function(){ if (window.__travelMap) window.__travelMap.invalidateSize(); }, 150);
+    } catch (e) { if (mapEl) mapEl.innerHTML = '<div class="map-fallback">🗺️ 地图刷新失败（不影响文字）</div>'; }
+  }
+
+  /* ---------- 4) 景点卡片工具：拖拽手柄 + 上下移按钮 ---------- */
+  function buildSlotTools(slot, idx) {
+    var wrap = document.createElement('div');
+    wrap.className = 'slot-tools';
+    wrap.innerHTML =
+      '<span class="drag-handle" title="拖动排序">⠿</span>' +
+      '<button class="mv-btn mv-up" title="上移">▲</button>' +
+      '<button class="mv-btn mv-down" title="下移">▼</button>';
+    var ph = $('.ph', slot);
+    if (ph && ph.nextSibling) slot.insertBefore(wrap, ph.nextSibling);
+    else slot.insertBefore(wrap, slot.firstChild);
+    slot.setAttribute('data-slot-idx', idx);
+  }
+  function refreshSlotTools() {
+    $all('.day-card').forEach(function (card) {
+      var slots = $all('.slot', card);
+      slots.forEach(function (slot, idx) {
+        var tools = $('.slot-tools', slot);
+        if (!tools) { buildSlotTools(slot, idx); tools = $('.slot-tools', slot); }
+        var up = $('.mv-up', tools), down = $('.mv-down', tools);
+        if (up) up.disabled = (idx === 0);
+        if (down) down.disabled = (idx === slots.length - 1);
+      });
+    });
+    bindMoveButtons();
+    bindDragSort();
+  }
+  // 上下移（桌面 & 移动端通用）
+  function bindMoveButtons() {
+    $all('.mv-up').forEach(function (btn) {
+      btn.onclick = function () {
+        if (!isEdit()) return;
+        var slot = closest(btn, '.slot');
+        var grid = closest(slot, '.slots-grid');
+        if (!slot || !grid) return;
+        var prev = slot.previousElementSibling;
+        if (prev && prev.classList.contains('slot')) { grid.insertBefore(slot, prev); afterOrderChange(); }
+      };
+    });
+    $all('.mv-down').forEach(function (btn) {
+      btn.onclick = function () {
+        if (!isEdit()) return;
+        var slot = closest(btn, '.slot');
+        var grid = closest(slot, '.slots-grid');
+        if (!slot || !grid) return;
+        var next = slot.nextElementSibling;
+        if (next && next.classList.contains('slot')) { grid.insertBefore(next, slot); afterOrderChange(); }
+      };
+    });
+  }
+  // 拖拽排序（桌面 mousedown + 触屏 touch 长按拖动）
+  function bindDragSort() {
+    $all('.drag-handle').forEach(function (handle) {
+      handle.onmousedown = function (e) {
+        if (!isEdit()) return;
+        e.preventDefault();
+        startDrag(handle, e.clientY);
+      };
+      handle.ontouchstart = function (e) {
+        if (!isEdit()) return;
+        var t = e.touches && e.touches[0];
+        if (!t) return;
+        e.preventDefault();
+        startDrag(handle, t.clientY);
+      };
+    });
+    function startDrag(handle, startY) {
+      var slot = closest(handle, '.slot');
+      var grid = closest(slot, '.slots-grid');
+      if (!slot || !grid) return;
+      var slots = $all('.slot', grid);
+      var moved = false;
+      function onMove(y) {
+        if (Math.abs(y - startY) < 6) return;
+        moved = true;
+        slot.classList.add('sortable-dragging');
+        var target = null;
+        slots.forEach(function (s) {
+          if (s === slot) return;
+          var r = s.getBoundingClientRect();
+          if (y < r.top + r.height / 2 && !target) target = { el: s, before: true };
+        });
+        if (!target) {
+          var last = slots[slots.length - 1];
+          if (last !== slot) target = { el: last, before: false };
+        }
+        if (target) {
+          if (target.before) grid.insertBefore(slot, target.el);
+          else grid.insertBefore(slot, target.el.nextSibling);
+        }
+        slots = $all('.slot', grid);
+      }
+      function onMouseMove(ev) { onMove(ev.clientY); }
+      function onTouchMove(ev) {
+        if (ev.touches && ev.touches[0]) onMove(ev.touches[0].clientY);
+      }
+      function stop() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', stop);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', stop);
+        slot.classList.remove('sortable-dragging');
+        if (moved) { afterOrderChange(); moved = false; }
+      }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', stop);
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', stop);
+    }
+  }
+  // 拖拽后用 touch-action:none 的 handle 在移动端长按拖动（简单版：用上下移替代，保留桌面拖拽）
+  function afterOrderChange() {
+    refreshSlotTools();
+    refreshMap();
+    toast('已调整顺序（地图已同步）');
+  }
+
+  /* ---------- 5) 新增一天（day-card） ---------- */
+  function ensureAddDayButton() {
+    var timeline = document.getElementById('timeline');
+    if (!timeline) return;
+    if (!$('.add-day', timeline)) {
+      var btn = document.createElement('button');
+      btn.className = 'add-day';
+      btn.textContent = '＋ 添加一天（新日程）';
+      btn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var timeline2 = document.getElementById('timeline');
+        var days = $all('.day-card', timeline2);
+        var n = days.length + 1;
+        var day = document.createElement('div');
+        day.className = 'day-card';
+        day.innerHTML =
+          '<div class="day-head"><span class="day-date">Day ' + n + ' · 待定日期</span><span class="day-week">新日程</span></div>' +
+          '<div class="day-theme" data-path="days.new.theme">新的一天 · 点击编辑主题</div>' +
+          '<div class="day-tabs">' +
+            '<button class="day-tab active" data-tab="tips0">💡 提示</button>' +
+            '<button class="tab-add-btn" title="新增提示页签">＋ 页签</button>' +
+          '</div>' +
+          '<div class="day-panels"><div class="day-panel active" data-panel="tips0"><div class="day-tips" style="margin-bottom:0;"><b>💡 当日提示</b><div>· <span data-path="days.new.tips.0">点击编辑本日提示内容…</span></div></div></div></div>' +
+          '<div class="slots-grid"></div>' +
+          '<button class="add-slot" data-dayidx="' + (n - 1) + '">＋ 添加景点</button>';
+        timeline2.insertBefore(day, btn);
+        day.setAttribute('data-tabs-built', '1');
+        bindDayButtons();
+        refreshSlotTools();
+        bindPhotoClick();
+        addDayDeleteButtons(); // 新的一天也支持整日删除
+        if (editing) {
+          $all('[data-path]', day).forEach(function (el) { el.setAttribute('contenteditable', 'true'); });
+        }
+        bindAddSlot();
+        toast('已添加新的一天：点击编辑主题/提示，用「添加景点」安排行程');
+        day.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      timeline.appendChild(btn);
+    }
+  }
+
+  /* ---------- 6) 每日页签（信息提示）管理 ---------- */
+  function bindDayButtons() {
+    bindTabSwitching();
+    bindTabAdd();
+    bindTabDel();
+  }
+  function bindTabSwitching() {
+    $all('.day-card').forEach(function (card) {
+      var tabs = $all('.day-tab', card);
+      tabs.forEach(function (tab) {
+        if (tab.__tabBound) return;
+        tab.__tabBound = true;
+        tab.addEventListener('click', function (e) {
+          if (e.target.classList.contains('tab-del')) return;
+          var name = tab.getAttribute('data-tab');
+          $all('.day-tab', card).forEach(function (t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          $all('.day-panel', card).forEach(function (p) {
+            p.classList.toggle('active', p.getAttribute('data-panel') === name);
+          });
+        });
+      });
+    });
+  }
+  function bindTabAdd() {
+    $all('.tab-add-btn').forEach(function (btn) {
+      if (btn.__tabAddBound) return;
+      btn.__tabAddBound = true;
+      btn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var card = closest(btn, '.day-card');
+        if (!card) return;
+        var title = prompt('新页签标题（如：交通备忘 / 注意事项）：', '备忘');
+        if (title === null || !title.trim()) return;
+        var body = prompt('页签内容：', '点击文字可编辑…');
+        var id = 'custom' + Date.now();
+        // 添加 tab 按钮
+        var tabB = document.createElement('button');
+        tabB.className = 'day-tab';
+        tabB.setAttribute('data-tab', id);
+        tabB.innerHTML = '📌 ' + title.trim() + '<span class="tab-del" title="删除此页签">✕</span>';
+        btn.parentNode.insertBefore(tabB, btn);
+        // 添加 panel
+        var panelsWrap = $('.day-panels', card);
+        if (!panelsWrap) {
+          panelsWrap = document.createElement('div');
+          panelsWrap.className = 'day-panels';
+          var tabsBar = $('.day-tabs', card);
+          var ref = tabsBar ? tabsBar.nextSibling : null;
+          card.insertBefore(panelsWrap, ref);
+        }
+        var panel = document.createElement('div');
+        panel.className = 'day-panel';
+        panel.setAttribute('data-panel', id);
+        panel.innerHTML = '<div class="day-tip-item" data-path="days.custom" contenteditable="' + (editing ? 'true' : 'false') + '">' + body.trim() + '</div>';
+        panelsWrap.appendChild(panel);
+        // 切到新页签
+        $all('.day-tab', card).forEach(function (t) { t.classList.remove('active'); });
+        tabB.classList.add('active');
+        $all('.day-panel', card).forEach(function (p) { p.classList.remove('active'); });
+        panel.classList.add('active');
+        if (editing) { $all('[data-path]', panel).forEach(function (el) { el.setAttribute('contenteditable', 'true'); }); }
+        bindTabDel(); // 为新页签的 ✕ 绑定删除（旧的有防重标记会跳过）
+        toast('已新增页签「' + title.trim() + '」');
+      });
+    });
+  }
+  function bindTabDel() {
+    $all('.day-tab .tab-del').forEach(function (x) {
+      if (x.__tabDelBound) return;
+      x.__tabDelBound = true;
+      x.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!isEdit()) return;
+        var tab = closest(x, '.day-tab');
+        var card = closest(tab, '.day-card');
+        if (!tab || !card || !confirm('删除该页签？')) return;
+        var name = tab.getAttribute('data-tab');
+        var panel = $('.day-panel[data-panel="' + name + '"]', card);
+        var wasActive = tab.classList.contains('active');
+        tab.remove();
+        if (panel) panel.remove();
+        if (wasActive) {
+          var firstTab = $('.day-tab', card);
+          if (firstTab) firstTab.click();
+        }
+        toast('页签已删除');
+      });
+    });
+  }
+
+  /* ---------- 7) 添加景点 ---------- */
+  function bindAddSlot() {
+    $all('.add-slot').forEach(function (btn) {
+      if (btn.__bound) return;
+      btn.__bound = true;
+      btn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var dayCard = closest(btn, '.day-card');
+        var grid = dayCard.querySelector('.slots-grid');
+        var slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.innerHTML =
+          '<button class="del-slot" title="删除此景点">✕</button>' +
+          '<div class="ph" data-imgpath="new"><span class="ph-name">新景点（点文字改名）</span></div>' +
+          '<div class="body">' +
+            '<div class="nm" data-path="new">新景点</div>' +
+            '<div class="tm">🌤️ 中午/下午 · <span data-path="new">时间待定</span></div>' +
+            '<div class="rv" data-path="new">点击编辑点评…（编辑模式下点图片可配图）</div>' +
+            '<div class="rate">★ 4.0 · <span class="set-pos" style="color:var(--accent);cursor:pointer;font-weight:700;">📍 设坐标</span></div>' +
+          '</div>';
+        grid.appendChild(slot);
+        // 默认坐标：继承同一天最后一个有坐标的景点（避免地图缺失，可后续改）
+        var sibs = $all('.slot', grid);
+        var lastCoord = null;
+        for (var si = 0; si < sibs.length - 1; si++) {
+          var lc = sibs[si].getAttribute('data-lat');
+          if (lc) lastCoord = sibs[si];
+        }
+        if (lastCoord) {
+          slot.setAttribute('data-lat', lastCoord.getAttribute('data-lat'));
+          slot.setAttribute('data-lng', lastCoord.getAttribute('data-lng'));
+        }
+        // 设坐标按钮
+        var setPos = $('.set-pos', slot);
+        if (setPos) {
+          setPos.addEventListener('click', function () {
+            if (!isEdit()) return;
+            var curLat = slot.getAttribute('data-lat') || '';
+            var curLng = slot.getAttribute('data-lng') || '';
+            var lat = prompt('纬度 lat（如 35.6812）：', curLat);
+            if (lat === null) return;
+            var lng = prompt('经度 lng（如 139.7671）：', curLng);
+            if (lng === null) return;
+            var nlat = parseFloat(lat), nlng = parseFloat(lng);
+            if (!isNaN(nlat) && !isNaN(nlng)) {
+              slot.setAttribute('data-lat', nlat);
+              slot.setAttribute('data-lng', nlng);
+              refreshMap();
+              toast('✅ 坐标已设置，地图已更新');
+            } else { toast('坐标格式不正确'); }
+          });
+        }
+        if (editing) {
+          $all('[data-path]', slot).forEach(function (el) { el.setAttribute('contenteditable', 'true'); });
+        }
+        bindDelSlot(slot);
+        bindPhotoClick();
+        refreshSlotTools();
+        refreshMap();
+        toast('已添加景点：点文字编辑；可点「📍 设坐标」标记到地图');
+      });
+    });
+  }
+  function bindDelSlot(scope) {
+    var dels = scope ? $all('.del-slot', scope) : $all('.del-slot');
+    dels.forEach(function (d) {
+      if (d.__bound) return;
+      d.__bound = true;
+      d.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var slot = closest(d, '.slot');
+        if (slot && confirm('删除这个景点？')) { slot.remove(); afterOrderChange(); }
+      });
+    });
+  }
+
+  /* ---------- 8) 换图 ---------- */
+  function bindPhotoClick() {
+    $all('.ph').forEach(function (ph) {
+      if (ph.__photoBound) return;
+      ph.__photoBound = true;
+      ph.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var img = $('img', ph);
+        var cur = img ? img.src : '';
+        var url = prompt('输入新的图片 URL（留空删除图片）：', cur);
+        if (url === null) return;
+        if (!img) {
+          img = document.createElement('img');
+          img.alt = 'photo';
+          ph.insertBefore(img, ph.firstChild);
+        }
+        if (url.trim() === '') { img.style.display = 'none'; }
+        else { img.src = url.trim(); img.style.display = ''; img.onerror = function(){ this.style.display='none'; }; }
+        toast('图片已更新');
+      });
+    });
+  }
+
+  /* ---------- 9) 页签系统构建：把每张 day-card 的 提示/可选方案/餐饮 重组为页签 ---------- */
+  var TAB_ICONS = { tips: '💡', alt: '🔀', food: '🍽️' };
+  function buildDayTabSystem() {
+    $all('.day-card').forEach(function (card) {
+      if (card.getAttribute('data-tabs-built')) return;
+      card.setAttribute('data-tabs-built', '1');
+      // 收集内容块
+      var blocks = [];
+      var tips = $('.day-tips', card);
+      if (tips) blocks.push({ id: 'tips', icon: '💡', label: '当日提示', node: tips });
+      var alts = $('.alternatives', card);
+      if (alts) blocks.push({ id: 'alt', icon: '🔀', label: '可选方案', node: alts });
+      var dinings = $all('.dining', card);
+      if (dinings.length) {
+        var foodWrap = document.createElement('div');
+        foodWrap.className = 'day-tips';
+        foodWrap.innerHTML = '<b>🍽️ 美食推荐</b>';
+        dinings.forEach(function (d) { foodWrap.appendChild(d); });
+        blocks.push({ id: 'food', icon: '🍽️', label: '美食', node: foodWrap });
+      }
+      if (!blocks.length) return;
+      // 建页签条
+      var tabs = document.createElement('div');
+      tabs.className = 'day-tabs';
+      blocks.forEach(function (b, i) {
+        var t = document.createElement('button');
+        t.className = 'day-tab' + (i === 0 ? ' active' : '');
+        t.setAttribute('data-tab', b.id);
+        t.innerHTML = b.icon + ' ' + b.label + '<span class="tab-del" title="删除此页签">✕</span>';
+        tabs.appendChild(t);
+      });
+      var addB = document.createElement('button');
+      addB.className = 'tab-add-btn';
+      addB.textContent = '＋ 页签';
+      addB.title = '新增信息提示页签';
+      tabs.appendChild(addB);
+      // 建面板容器，把所有 block 节点移入对应 panel（保留元素引用与 data-path 编辑能力）
+      var panels = document.createElement('div');
+      panels.className = 'day-panels';
+      blocks.forEach(function (b, i) {
+        var p = document.createElement('div');
+        p.className = 'day-panel' + (i === 0 ? ' active' : '');
+        p.setAttribute('data-panel', b.id);
+        // tips 块保留原有 .day-tips 结构；food 的 foodWrap 内含多个 .dining
+        p.appendChild(b.node);
+        panels.appendChild(p);
+      });
+      // 插入到 slots-grid 之前（让每日主题 → 页签 → 景点 → 添加按钮）
+      var grid = $('.slots-grid', card);
+      var themeEl = $('.day-theme', card);
+      if (themeEl && themeEl.nextSibling) {
+        card.insertBefore(tabs, themeEl.nextSibling);
+        card.insertBefore(panels, tabs.nextSibling);
+      } else {
+        card.insertBefore(panels, grid);
+        card.insertBefore(tabs, panels);
+      }
+      // tips 块的外层留白调整（已由 .day-tips 自带 margin）
+    });
+    bindTabSwitching();
+    bindTabAdd();
+    bindTabDel();
+  }
+
+  /* ---------- 9b) 坐标字典：按景点名补全 slot 坐标（地图联动） ---------- */
+  var COORD_DICT = {
+    '关西国际机场 T1': [34.4347,135.2431], '宜必思大阪梅田酒店（Check-in）': [34.7046,135.4990],
+    '大阪天满宫': [34.6998,135.5104], '大阪城（天守阁）': [34.6873,135.5262],
+    '天神桥筋商店街 或 黑门市场（午餐）': [34.6644,135.5056], '难波八坂神社（可选）': [34.6647,135.5049],
+    '心斋桥（逛街 + Harbs 蛋糕）': [34.6748,135.5015], '道顿堀（晚餐+夜景）': [34.6687,135.5013],
+    '清水寺': [34.9949,135.7850], '八坂神社': [35.0038,135.7787], '祇园 · 花见小路（午餐）': [35.0035,135.7767],
+    '伏见稻荷大社': [34.9671,135.7727], '岚山小火车（嵯峨→龟冈）': [35.0186,135.6800],
+    '天龙寺（曹源池庭园）': [35.0166,135.6712], '竹林小径': [35.0174,135.6718], '金阁寺（鹿苑寺）': [35.0394,135.7292],
+    '京都站八条口（夜行巴士集合）': [34.9807,135.7585], '新宿 Busta 3F（夜巴抵达）': [35.6896,139.7006],
+    '东京晴空塔（天望甲板/回廊）': [35.7101,139.8107], '隅田公园（晴空塔合影）': [35.7114,139.7965],
+    '浅草寺 · 雷门 · 仲见世': [35.7148,139.7967], '上野公园 · 阿美横町': [35.7153,139.7738],
+    '秋叶原（采购 + 女仆咖啡）': [35.6984,139.7731], '东京站 · 丸之内站舍': [35.6812,139.7671],
+    '皇居外苑 · 二重桥': [35.6852,139.7528], '明治神宫': [35.6764,139.6993], '代代木公园': [35.6714,139.6948],
+    '涩谷（十字路口 + SHIBUYA SKY）': [35.6595,139.7005], '新宿御苑（秋色散步）': [35.6852,139.7100],
+    '原宿 · 表参道': [35.6658,139.7105], '池袋（补购物/乙女路）': [35.7295,139.7109],
+    '羽田机场 T3（值机 + 免税购物）': [35.5494,139.7850]
+  };
+  function attachCoords() {
+    $all('.slot').forEach(function (slot) {
+      if (slot.getAttribute('data-lat')) return;
+      var nmEl = $('.nm', slot);
+      var nm = nmEl ? nmEl.textContent.trim() : '';
+      // 1) 精确匹配
+      var hit = COORD_DICT[nm];
+      // 2) 包含匹配（静态 HTML 名称可能与字典有细微差异）
+      if (!hit) {
+        var keys = Object.keys(COORD_DICT);
+        for (var i = 0; i < keys.length; i++) {
+          if (nm.indexOf(keys[i]) !== -1 || keys[i].indexOf(nm) !== -1) { hit = COORD_DICT[keys[i]]; break; }
+          // 也尝试去掉括号内容匹配
+          var bare = nm.replace(/（.*?）/g, '').replace(/\(.*?\)/g, '');
+          var bareKey = keys[i].replace(/（.*?）/g, '').replace(/\(.*?\)/g, '');
+          if (bareKey && bare.indexOf(bareKey) !== -1) { hit = COORD_DICT[keys[i]]; break; }
+        }
+      }
+      if (hit) { slot.setAttribute('data-lat', hit[0]); slot.setAttribute('data-lng', hit[1]); }
+    });
+  }
+
+  /* ---------- 9c) 初始绑定 ---------- */
+  function addDayDeleteButtons() {
+    $all('.day-card').forEach(function (card) {
+      if ($('.day-del', card)) return; // 已有删除按钮（含导出重开场景）
+      var head = $('.day-head', card);
+      if (!head) return;
+      var delBtn = document.createElement('button');
+      delBtn.className = 'mv-btn day-del';
+      delBtn.title = '删除这一天（编辑模式可用）';
+      delBtn.textContent = '🗑 删';
+      delBtn.style.cssText = 'background:var(--accent);color:#fff;border:none;border-radius:999px;padding:3px 10px;font-size:11px;cursor:pointer;margin-left:auto;display:none;';
+      head.appendChild(delBtn);
+      delBtn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        if (confirm('删除这一整天？（其中所有景点都会移除）')) {
+          card.remove();
+          refreshMap();
+          toast('已删除该日程');
+        }
+      });
+    });
+  }
+  function initAll() {
+    attachCoords();
+    buildDayTabSystem();
+    ensureAddDayButton();
+    bindAddSlot();
+    bindDelSlot(null);
+    bindPhotoClick();
+    bindDayButtons();
+    addDayDeleteButtons();
+    refreshSlotTools();
+    // 暴露给地图脚本：DOM 是唯一数据源，任何增删排序后重建地图
+    window.__refreshMapFromDOM = refreshMap;
+  }
+  initAll();
+
+  /* ---------- 10) 导出 ---------- */
   btnExport.addEventListener('click', function () {
     try {
-      // 先退出编辑模式，去掉视觉痕迹，再整体克隆当前文档（保留全部 JS 增强与内联数据）
       document.body.classList.remove('edit-mode');
       editing = false;
       setEditable(false);
       btnEdit.textContent = '✏️ 编辑';
       var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      // 清理"刚导出"的提示性残留（若有 toast 显示中）
       html = html.replace(/<div class="toast"[^>]*>[\s\S]*?<\/div>/, '<div class="toast" id="toast"></div>');
-      // 去掉无意义的内联 style 残留（若存在）
       html = html.replace(/\scontenteditable="false"/g, '');
+      // 导出的文件保留内联脚本（含本编辑系统与地图），并写入当前 DOM 快照
       var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -701,57 +1306,10 @@ function initTravelMap(elementId, points, opts) {
       document.body.appendChild(a);
       a.click();
       setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-      toast('✅ 已导出「旅行计划-已编辑.html」：内容为纯静态（任何设备/预览方式都能完整显示），地图与编辑功能保留');
+      toast('✅ 已导出「旅行计划-已编辑.html」（含全部改动与编辑功能）');
     } catch (e) {
       toast('导出失败：' + e.message);
     }
-  });
-  // 点击图片 → 换图（编辑模式下）
-  document.addEventListener('click', function (e) {
-    if (!editing) return;
-    var ph = e.target.closest ? e.target.closest('.ph') : null;
-    if (ph && ph.querySelector('img')) {
-      var img = ph.querySelector('img');
-      var cur = img.src || '';
-      var url = prompt('输入新的图片 URL（留空删除图片）：', cur);
-      if (url === null) return;
-      if (url.trim() === '') { img.style.display = 'none'; ph.querySelector('.ph-name').style.display = ''; toast('已移除图片'); }
-      else { img.src = url.trim(); img.style.display = ''; img.onerror = function(){ this.style.display='none'; }; toast('✅ 图片已替换'); }
-    }
-  });
-  // 删除景点（编辑模式下）
-  document.addEventListener('click', function (e) {
-    if (!editing) return;
-    var del = e.target.closest ? e.target.closest('.del-slot') : null;
-    if (del) {
-      var slot = del.closest('.slot');
-      if (slot && confirm('删除这个景点？')) { slot.remove(); toast('已删除'); }
-    }
-  });
-  // 添加景点（编辑模式下）：在当前天末尾插入一个空模板卡片
-  document.querySelectorAll('.add-slot').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (!editing) return;
-      var dayCard = btn.closest('.day-card');
-      var grid = dayCard.querySelector('.slots-grid');
-      var slot = document.createElement('div');
-      slot.className = 'slot';
-      slot.innerHTML =
-        '<button class="del-slot" title="删除此景点">✕</button>' +
-        '<div class="ph" data-imgpath="new"><span class="ph-name">新景点（点文字改名）</span></div>' +
-        '<div class="body">' +
-          '<div class="nm" data-path="new">新景点</div>' +
-          '<div class="tm">🌤️ 中午/下午 · <span data-path="new">时间待定</span></div>' +
-          '<div class="rv" data-path="new">点击编辑点评…（可选：编辑模式下点上方图片可配图）</div>' +
-        '</div>';
-      grid.appendChild(slot);
-      // 新卡片文字同样进入可编辑状态
-      if (editing) {
-        var nEls = slot.querySelectorAll('[data-path]');
-        for (var k = 0; k < nEls.length; k++) { nEls[k].setAttribute('contenteditable', 'true'); }
-      }
-      toast('已添加空白景点：点名称/时间/点评直接编辑；导出后会保留');
-    });
   });
 })();
 </script>
@@ -820,23 +1378,27 @@ function initTravelMap(elementId, points, opts) {
     {name:'池袋', time:'10.06 下午', lat:35.7295, lng:139.7109},
     {name:'羽田机场 T3', time:'10.07 返程', lat:35.5494, lng:139.7850}
   ];
+  // POINTS 保留为坐标字典兜底（名称匹配见编辑脚本 COORD_DICT；此处用于无 DOM 坐标时的回退）
   function tryInit() {
     var mapEl = document.getElementById('map');
-    if (!mapEl || typeof L === 'undefined' || !L.map || window.__mapDone) return;
+    if (!mapEl || typeof L === 'undefined' || !L.map) return;
     try {
-      window.__mapDone = true;
-      window.__travelMap = initTravelMap('map', POINTS);
+      if (window.__refreshMapFromDOM) {
+        window.__refreshMapFromDOM(); // DOM 是唯一数据源：含所有增删排序后的景点
+      } else {
+        window.__travelMap = initTravelMap('map', POINTS);
+        var sync0 = function(){ if(window.__travelMap) window.__travelMap.invalidateSize(); };
+        setTimeout(sync0, 400);
+      }
       var sync = function(){ if(window.__travelMap) window.__travelMap.invalidateSize(); };
-      setTimeout(function(){ sync(); }, 400);
       window.addEventListener('resize', sync);
       window.addEventListener('orientationchange', function(){ setTimeout(sync, 400); });
     } catch (e) { mapEl.innerHTML = '<div class="map-fallback">🗺️ 地图初始化失败（不影响文字行程）</div>'; }
   }
   loadCss(0);
   loadJs(0);
-  // 若 Leaflet 已就绪（缓存）直接初始化；否则等待 onload
   setTimeout(function(){ if (typeof L !== 'undefined') { window.__leafletLoaded = true; tryInit(); } }, 300);
-  setTimeout(function(){ if (!window.__mapDone && mapEl()) { mapEl().innerHTML = '<div class="map-fallback">🗺️ 地图需联网加载，当前环境未加载成功<br>文字行程完整可用</div>'; } }, 12000);
+  setTimeout(function(){ if (mapEl()) { var el = mapEl(); if (el && !el.querySelector('.leaflet-container')) { el.innerHTML = '<div class="map-fallback">🗺️ 地图需联网加载，当前环境未加载成功<br>文字行程完整可用</div>'; } } }, 12000);
   function mapEl(){ return document.getElementById('map'); }
 })();
 </script>
