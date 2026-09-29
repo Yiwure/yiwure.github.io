@@ -8,11 +8,20 @@
 ## 快速开始
 
 ```bash
-npm install      # 安装依赖
-npm run dev      # 本地开发 http://localhost:5173
-npm run build    # 构建到 dist/
-npm run preview  # 预览构建产物 http://localhost:4173
+npm install        # 安装依赖
+npm run dev        # 本地开发 http://localhost:5173
+npm run build      # 构建到 dist/
+npm run preview    # 预览构建产物 http://localhost:4173
+
+# 图片本地化（把 trip.json 里的远程图片下载到 public/images/）
+npm run fetch-images             # 只下载缺失的
+npm run fetch-images -- --force  # 全部重新下载
+npm run fetch-images -- -c 8     # 指定并发数
 ```
+
+> 图片下载依赖 Windows 系统代理（`Invoke-WebRequest` 特性）：
+> Node 的 `fetch` 不使用系统代理，在需要代理的网络下会全部失败，
+> 因此由 Node 调度并发、每张图起一个 PowerShell 进程完成实际下载。
 
 ## 怎么改行程内容
 
@@ -66,6 +75,34 @@ npm run preview  # 预览构建产物 http://localhost:4173
 
 > 旧版单文件 HTML 保留在 `legacy/`，仅作参考，不再维护。
 
+## 图片资源
+
+所有景点配图已本地化到 **`public/images/`**（构建后随站点一起发布），
+不再依赖境外图床，打开更快且不受网络限制。
+
+命名规则：`d<天>-<景点序号>-<英文短名>.jpg`
+
+```
+d1-01-kansai-airport-t1.jpg       第 1 天第 1 个景点
+d4-01-sagano-romantic-train.jpg   第 4 天第 1 个景点
+d6-05-shibuya-crossing.jpg        第 6 天第 5 个景点
+```
+
+同一天内按序号排列，看文件名即可定位到行程位置。
+`trip.json` 中对应写成 `"photos": ["/images/d1-01-kansai-airport-t1.jpg"]`。
+
+新增景点配图时，把图片 URL 填进 `photos` 后跑一次 `npm run fetch-images`，
+脚本会自动下载、按规则命名并回写路径。
+
+## 地图说明
+
+底图按顺序自动回退：**CARTO → OpenStreetMap → OSM 德国镜像 → 高德地图**，
+某个源连续失败会自动切到下一个。地图上方显示当前底图源，也可点
+「🔄 切换底图」手动换源。
+
+> 若底图一直加载失败，通常是网络或代理问题（瓦片服务在境外），
+> 不影响行程文字与景点列表。
+
 ## 页面内编辑
 
 右下角 **✏️ 编辑** 进入编辑模式：
@@ -94,18 +131,23 @@ src/
   composables/
     useTrip.js               行程数据 + localStorage 持久化 + 增删改操作
     useEditMode.js           编辑模式、提示条、安全输入框
-    useTravelMap.js          Leaflet 地图实例（点位渲染、自适应）
+    useTravelMap.js          Leaflet 地图（点位渲染 + 多瓦片源自动回退）
   components/
-    TripHeader.vue           标题 + 待办清单（勾选状态本地保存）
-    TripPreTrip.vue          行前须知
+    TripHeader.vue           标题 / 副标题 / 价格说明
+    TripTodo.vue             出发前待办清单（示例提醒，无需勾选）
+    TripPreTrip.vue          行程天气（按城市分段的逐日预报）
     TripFlights.vue          航班
-    TripHotels.vue           酒店
-    TripMap.vue              地图区块
+    TripHotels.vue           酒店（日期 → 位置 → 注意事项）
+    TripMap.vue              地图区块（含底图源状态与切换）
     DayCard.vue              单日卡片（页签 / 景点网格 / 美食）
     SlotCard.vue             单个景点卡片（图集 / 排序 / 坐标）
     TripTips.vue             全程贴士
     EditableText.vue         可编辑文本原子组件
-scripts/extract-data.mjs     一次性迁移脚本（从旧版 HTML 抽数据）
+public/images/               本地化的景点配图（32 张）
+scripts/
+  fetch-images.mjs           Node 侧：规划文件名 + 并发调度 + 回写路径
+  download-one.ps1           PowerShell 侧：走系统代理下载单张图
+  extract-data.mjs           一次性迁移脚本（从旧版 HTML 抽数据）
 legacy/                      旧版单文件 HTML（参考用）
 ```
 

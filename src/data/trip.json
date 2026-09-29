@@ -15,8 +15,24 @@
         "range": "9.30 – 10.01",
         "summary": "多云为主，气温 18–29°C。",
         "days": [
-          { "date": "9.30", "weekday": "周三", "icon": "⛅", "desc": "多云", "low": 18, "high": 27, "rain": 14 },
-          { "date": "10.01", "weekday": "周四", "icon": "⛅", "desc": "多云", "low": 21, "high": 29, "rain": 10 }
+          {
+            "date": "9.30",
+            "weekday": "周三",
+            "icon": "⛅",
+            "desc": "多云",
+            "low": 18,
+            "high": 27,
+            "rain": 14
+          },
+          {
+            "date": "10.01",
+            "weekday": "周四",
+            "icon": "⛅",
+            "desc": "多云",
+            "low": 21,
+            "high": 29,
+            "rain": 10
+          }
         ]
       },
       {
@@ -25,8 +41,24 @@
         "range": "10.02 – 10.03",
         "summary": "晴到多云，昼夜温差 10°C 以上,备一件外套。",
         "days": [
-          { "date": "10.02", "weekday": "周五", "icon": "🌤️", "desc": "晴间多云", "low": 16, "high": 24, "rain": 0 },
-          { "date": "10.03", "weekday": "周六", "icon": "⛅", "desc": "多云", "low": 13, "high": 23, "rain": 0 }
+          {
+            "date": "10.02",
+            "weekday": "周五",
+            "icon": "🌤️",
+            "desc": "晴间多云",
+            "low": 16,
+            "high": 24,
+            "rain": 0
+          },
+          {
+            "date": "10.03",
+            "weekday": "周六",
+            "icon": "⛅",
+            "desc": "多云",
+            "low": 13,
+            "high": 23,
+            "rain": 0
+          }
         ]
       },
       {
@@ -35,14 +67,42 @@
         "range": "10.05 – 10.07",
         "summary": "多云伴短时阵雨，气温 16–25°C，随身带折叠伞。",
         "days": [
-          { "date": "10.05", "weekday": "周一", "icon": "🌦️", "desc": "小雨", "low": 17, "high": 20, "rain": 49 },
-          { "date": "10.06", "weekday": "周二", "icon": "🌦️", "desc": "小雨", "low": 19, "high": 25, "rain": 27 },
-          { "date": "10.07", "weekday": "周三", "icon": "🌧️", "desc": "阵雨", "low": 16, "high": 20, "rain": 41 }
+          {
+            "date": "10.05",
+            "weekday": "周一",
+            "icon": "🌦️",
+            "desc": "小雨",
+            "low": 17,
+            "high": 20,
+            "rain": 49
+          },
+          {
+            "date": "10.06",
+            "weekday": "周二",
+            "icon": "🌦️",
+            "desc": "小雨",
+            "low": 19,
+            "high": 25,
+            "rain": 27
+          },
+          {
+            "date": "10.07",
+            "weekday": "周三",
+            "icon": "🌧️",
+            "desc": "阵雨",
+            "low": 16,
+            "high": 20,
+            "rain": 41
+          }
         ]
       }
     ],
     "notes": [
-      { "icon": "🧥", "label": "穿搭", "text": "长袖衬衫/薄卫衣 + 一件防风外套（早晚偏凉），舒适步行鞋（每日约 1.5–2 万步），折叠伞，便携充电宝；参拜神社寺庙时着装得体即可。" }
+      {
+        "icon": "🧥",
+        "label": "穿搭",
+        "text": "长袖衬衫/薄卫衣 + 一件防风外套（早晚偏凉），舒适步行鞋（每日约 1.5–2 万步），折叠伞，便携充电宝；参拜神社寺庙时着装得体即可。"
+      }
     ]
   },
   "todo": {
@@ -177,7 +237,7 @@
             "🚇 利木津巴士（关西机场→梅田） · 约 ¥1,600 · 约 55–75 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Kansai%20International%20Airport%20Terminal.JPG?width=600"
+            "/images/d1-01-kansai-airport-t1.jpg"
           ]
         },
         {
@@ -190,7 +250,7 @@
           "review": "梅田商圈内的连锁酒店，楼下便利店与居酒屋齐全；早点休息，明天开走。",
           "openingHours": "前台 24 小时",
           "photos": [
-            "https://www.ahstatic.com/photos/b5x1_ho_00_p_1024x768.jpg?width=600"
+            "/images/d1-02-ibis-osaka-umeda.jpg"
           ]
         }
       ],
@@ -241,7 +301,7 @@
             "🚇 梅田→谷町线/步行 · 约 ¥180 · 约 15 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/%C3%94saka-ten%27man-g%C3%BB%20Shint%C3%B4%20Shrine%20-%20Ebisu-mon%20Gate.jpg?width=600"
+            "/images/d2-01-osaka-tenmangu.jpg"
           ]
         },
         {
@@ -258,7 +318,7 @@
             "🚇 天满宫→大阪城（步行/地铁谷町线） · 约 ¥180 · 约 20 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Osaka%20Castle%2016.JPG?width=600"
+            "/images/d2-02-osaka-castle.jpg"
           ]
         },
         {
@@ -275,7 +335,7 @@
             "🚇 大阪城→谷町四丁目→中央线→难波 · 约 ¥230 · 约 25 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Kuromon%20Market%20-%20panoramio.jpg?width=600"
+            "/images/d2-03-kuromon-market.jpg"
           ]
         },
         {
@@ -292,7 +352,7 @@
             "🚇 黑门市场步行 · 免费 · 约 8 分钟"
           ],
           "photos": [
-            "https://ja.wikipedia.org/wiki/Special:FilePath/Namba-yasaka-jinja%20shishibutai.jpg?width=600"
+            "/images/d2-04-namba-yasaka-shrine.jpg"
           ]
         },
         {
@@ -309,7 +369,7 @@
             "🚇 难波→御堂筋线→心斋桥 · 约 ¥180 · 约 5 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Shinsaibashi1.JPG?width=600"
+            "/images/d2-05-shinsaibashi.jpg"
           ]
         },
         {
@@ -327,7 +387,7 @@
             "🚇 心斋桥步行 · 免费 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Dotonbori%2017.JPG?width=600"
+            "/images/d2-06-dotonbori.jpg"
           ]
         }
       ],
@@ -402,7 +462,7 @@
             "🚇 京都站→市营 206 路→清水道 · ¥230 · 约 25 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Kiyomizu%20dera%2C%20Kyoto.JPG?width=600"
+            "/images/d3-01-kiyomizu-dera.jpg"
           ]
         },
         {
@@ -419,7 +479,7 @@
             "🚇 清水寺步行（经二年坂/三年坂） · 免费 · 约 25 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto%20Yasaka-jinja%20Nebentor%202.jpg?width=600"
+            "/images/d3-02-yasaka-shrine.jpg"
           ]
         },
         {
@@ -436,7 +496,7 @@
             "🚇 八坂神社步行 · 免费 · 约 5 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Street%20of%20Gion%2C%20Kyoto.JPG?width=600"
+            "/images/d3-03-gion-hanami-koji.jpg"
           ]
         },
         {
@@ -454,7 +514,7 @@
             "🚇 祇园四条→京阪本线→伏见稻荷 · ¥240 · 约 15 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Double%20torii%20path%20at%20Fushimi%20Inari%20Taisha%20Shrine%2C%20Kyoto%2C%20Japan.jpg?width=600"
+            "/images/d3-04-fushimi-inari.jpg"
           ]
         }
       ],
@@ -522,7 +582,7 @@
             null
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Torokko-Saga%20Station%20at%20dusk%2020141009.JPG?width=600"
+            "/images/d4-01-sagano-romantic-train.jpg"
           ]
         },
         {
@@ -539,7 +599,7 @@
             "🚇 嵯峨野小火车终点→天龙寺 · 步行 · 免费 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Tenryu-ji%20and%20Pond.jpg?width=600"
+            "/images/d4-02-tenryu-ji.jpg"
           ]
         },
         {
@@ -556,7 +616,7 @@
             "🚇 天龙寺北门步行 · 免费 · 约 5 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/2021%20Sagano%20Bamboo%20forest%20in%20Arashiyama%2C%20Kyoto%2C%20Japan.jpg?width=600"
+            "/images/d4-03-arashiyama-bamboo.jpg"
           ]
         },
         {
@@ -573,7 +633,7 @@
             "🚇 岚山→JR 山阴本线→円町→市营 204/205 · 约 ¥320 · 约 40 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Kinkaku-ji%20the%20Golden%20Temple%20in%20Kyoto%20overlooking%20the%20lake%20-%20high%20rez.JPG?width=600"
+            "/images/d4-04-kinkaku-ji.jpg"
           ]
         },
         {
@@ -591,7 +651,7 @@
             "🚇 金阁寺→市营 205 路→京都站 · ¥230 · 约 45 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/JR%20Kyoto%20Station%20Hachijo%20West%20entrance%20-%20panoramio.jpg?width=600"
+            "/images/d4-05-kyoto-station-hachijo.jpg"
           ]
         }
       ],
@@ -646,7 +706,7 @@
             "🚇 JR 山手线 新宿→五反田 · ¥150 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku%20Expressway%20Bus%20Terminal%202020.JPG?width=600"
+            "/images/d5-01-shinjuku-busta.jpg"
           ]
         },
         {
@@ -665,7 +725,7 @@
             "🚇 五反田→山手线→新桥→浅草线→押上 · 约 ¥400 · 约 40 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Tokyo%20Skytree%202014%20%E2%85%A2.jpg?width=600"
+            "/images/d5-02-tokyo-skytree.jpg"
           ]
         },
         {
@@ -682,7 +742,7 @@
             "🚇 押上步行过桥 · 免费 · 约 15 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Sumida%20Park%20%2C%202011.JPG?width=600"
+            "/images/d5-03-sumida-park.jpg"
           ]
         },
         {
@@ -699,7 +759,7 @@
             "🚇 隅田公园步行 · 免费 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Sensoji%2CAsakusa.JPG?width=600"
+            "/images/d5-04-senso-ji-asakusa.jpg"
           ]
         },
         {
@@ -716,7 +776,7 @@
             "🚇 浅草→银座线→上野 · ¥180 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/ToriAtUenoPark.JPG?width=600"
+            "/images/d5-05-ueno-park.jpg"
           ]
         },
         {
@@ -733,7 +793,7 @@
             "🚇 上野→JR 山手线→秋叶原 · ¥150 · 约 4 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Akihabara%20Dai%20bdg%2007b.JPG?width=600"
+            "/images/d5-06-akihabara.jpg"
           ]
         }
       ],
@@ -793,7 +853,7 @@
             "🚇 五反田→JR 山手线→东京 · ¥180 · 约 20 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Tokyo%20Station%20Marunouchi%20Building%20-%20DSC09668.JPG?width=600"
+            "/images/d6-01-tokyo-station-marunouchi.jpg"
           ]
         },
         {
@@ -810,7 +870,7 @@
             "🚇 东京站步行 · 免费 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Imperial%20Palace%20Tokyo%20Sakashita%20Mon%20and%20Imperial%20Household.JPG?width=600"
+            "/images/d6-02-imperial-palace.jpg"
           ]
         },
         {
@@ -827,7 +887,7 @@
             "🚇 东京站→千代田线→明治神宫前（原宿） · ¥200 · 约 25 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Meiji-jingu%20torii.JPG?width=600"
+            "/images/d6-03-meiji-jingu.jpg"
           ]
         },
         {
@@ -844,7 +904,7 @@
             "🚇 明治神宫步行 · 免费 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Yoyogi%20Park%202.JPG?width=600"
+            "/images/d6-04-yoyogi-park.jpg"
           ]
         },
         {
@@ -862,7 +922,7 @@
             "🚇 代代木公园步行/千代田线 1 站 · 免费 · 约 15 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Shibuya%20crossing1.JPG?width=600"
+            "/images/d6-05-shibuya-crossing.jpg"
           ]
         }
       ],
@@ -932,7 +992,7 @@
             "🚇 五反田→JR 山手线→新宿 · ¥150 · 约 10 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku%20Gyoen%20National%20Garden%20-%20DSC05147.JPG?width=600"
+            "/images/d7-01-shinjuku-gyoen.jpg"
           ]
         },
         {
@@ -949,7 +1009,7 @@
             "🚇 新宿→JR 山手线→原宿 · ¥150 · 约 8 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Omotesando%202007%20b.JPG?width=600"
+            "/images/d7-02-harajuku-omotesando.jpg"
           ]
         },
         {
@@ -966,7 +1026,7 @@
             "🚇 原宿→JR 山手线→池袋 · ¥180 · 约 15 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Ikebukuro%20dsc04823.jpg?width=600"
+            "/images/d7-03-ikebukuro.jpg"
           ]
         }
       ],
@@ -1025,7 +1085,7 @@
             "🚇 五反田→山手线→品川→京急空港线 · 约 ¥500 · 约 40 分钟"
           ],
           "photos": [
-            "https://commons.wikimedia.org/wiki/Special:FilePath/Haneda%20International%20Terminal%20and%20Station.JPG?width=600"
+            "/images/d8-01-haneda-airport-t3.jpg"
           ]
         }
       ],
