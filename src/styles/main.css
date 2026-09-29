@@ -46,13 +46,47 @@ section{margin:24px 0;}
 h2.sec-title{font-size:18px; margin-bottom:14px; display:flex; align-items:center; gap:8px; color:#1f1c17;}
 h2.sec-title .bar{width:4px; height:18px; background:var(--accent); border-radius:2px; display:inline-block;}
 
-/* pretrip */
-.pt-grid{display:grid; grid-template-columns:1fr; gap:10px;}
-@media(min-width:768px){ .pt-grid{grid-template-columns:1fr 1fr;} }
-.pt-item{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:13px; box-shadow:var(--shadow);}
-.pt-item b{display:block; color:var(--gold); font-size:12.5px; margin-bottom:4px; letter-spacing:.05em;}
-.pt-apps{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
-.pt-apps i{font-style:normal; background:var(--card-soft); border:1px solid var(--border); color:var(--text); border-radius:999px; padding:3px 10px; font-size:12px;}
+/* ===== 行程天气（按城市分段） ===== */
+.weather-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+@media(min-width:768px){ .weather-grid{grid-template-columns:1fr 1fr;} }
+@media(min-width:1100px){ .weather-grid{grid-template-columns:repeat(3,1fr);} }
+
+.weather-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:13px 14px; box-shadow:var(--shadow);}
+.weather-head{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:6px;}
+.weather-city{font-weight:800; font-size:14.5px; color:var(--accent); display:inline-flex; align-items:center; gap:5px;}
+.weather-range{background:var(--gold-soft); color:var(--gold); border-radius:999px; padding:2px 10px; font-size:11.5px; font-weight:700; white-space:nowrap;}
+.weather-summary{font-size:12.5px; color:var(--text-dim); line-height:1.6; margin-bottom:9px;}
+
+/* 逐日预报行：日期 · 天气 · 温度条 · 降雨 */
+.weather-days{list-style:none; display:flex; flex-direction:column; gap:5px;}
+.weather-day{display:grid; grid-template-columns:62px 22px 1fr auto; align-items:center; gap:7px; font-size:12.5px; padding:5px 7px; border-radius:8px; background:var(--card-soft); border:1px solid var(--border);}
+.wd-date{display:flex; flex-direction:column; line-height:1.25; font-weight:700; color:var(--text);}
+.wd-date i{font-style:normal; font-size:10.5px; font-weight:600; color:var(--text-dim);}
+.wd-icon{font-size:15px; text-align:center;}
+.wd-desc{color:var(--text-dim); font-size:11.5px;}
+.wd-temp{display:inline-flex; align-items:center; gap:5px; min-width:0;}
+.wd-temp em{font-style:normal; color:var(--text-dim); font-size:11.5px; min-width:24px; text-align:right;}
+.wd-temp b{color:var(--accent); font-size:12.5px; min-width:28px;}
+.wd-bar{position:relative; display:block; width:60px; height:6px; border-radius:999px; background:linear-gradient(90deg,#cfe3ef,#f3ded0); overflow:hidden; flex:none;}
+.wd-bar-fill{position:absolute; top:0; height:100%; border-radius:999px; background:linear-gradient(90deg,#7fb3d5,var(--accent));}
+@media(max-width:400px){
+  .weather-day{grid-template-columns:54px 20px 1fr; row-gap:3px;}
+  .wd-bar{width:48px;}
+  .wd-rain{justify-self:end;}
+}
+.wd-rain{display:inline-flex; flex-direction:column; align-items:center; line-height:1.1; font-weight:700; font-size:11.5px; min-width:36px;}
+.wd-rain i{font-style:normal; font-size:9.5px; font-weight:500; opacity:.75;}
+.wd-rain.rain-low{color:var(--ok);}
+.wd-rain.rain-mid{color:var(--gold);}
+.wd-rain.rain-high{color:var(--accent);}
+
+/* 补充提醒 + 数据来源 */
+.weather-notes{display:grid; grid-template-columns:1fr; gap:10px; margin-top:10px;}
+@media(min-width:768px){ .weather-notes{grid-template-columns:1fr 1fr;} }
+.weather-note{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:11px 13px; font-size:12.5px; box-shadow:var(--shadow);}
+.weather-note b{display:block; color:var(--gold); font-size:12.5px; margin-bottom:4px;}
+.weather-note span{color:var(--text-dim); line-height:1.6;}
+.weather-source{margin-top:10px; background:var(--gold-soft); border:1px solid rgba(168,119,44,.35); border-radius:12px; padding:10px 12px; font-size:11.5px; color:var(--text-dim); line-height:1.6;}
 
 /* flights */
 .flights-grid{display:grid; grid-template-columns:1fr; gap:10px;}
