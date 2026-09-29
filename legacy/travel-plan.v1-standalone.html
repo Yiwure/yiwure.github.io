@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f6f2ea">
+<title>日本 9.30–10.07 · 关西 × 东京 8 日旅行计划</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#f6f2ea; --bg-soft:#efe8db; --card:#ffffff; --card-soft:#fbf8f2;
+    --text:#2e2a24; --text-dim:#7b7468; --accent:#c2402f; --accent-soft:rgba(194,64,47,.10);
+    --gold:#a8772c; --gold-soft:rgba(168,119,44,.13); --border:#e3dac9;
+    --ok:#2f7d4f; --ok-soft:rgba(47,125,79,.12); --shadow:0 1px 3px rgba(70,55,25,.07);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%;}
+  body{
+    background:linear-gradient(180deg,#fbf7ef 0%, var(--bg) 26%);
+    color:var(--text); font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:480px; margin:0 auto; padding:0 14px;
+    padding-left:14px; padding-right:14px;
+    padding-left:max(14px, env(safe-area-inset-left)); padding-right:max(14px, env(safe-area-inset-right));}
+  @media(min-width:768px){ .wrap{max-width:960px;} }
+  @media (orientation:landscape) and (max-height:520px){
+    header.hero{padding-top:calc(14px + env(safe-area-inset-top));}
+    #map{height:220px;}
+    section{margin:16px 0;}
+  }
+
+  /* ===== Header ===== */
+  header.hero{padding:calc(28px + env(safe-area-inset-top)) 0 6px; text-align:center;}
+  .kicker{letter-spacing:.35em; font-size:12px; color:var(--gold); margin-bottom:10px; text-transform:uppercase; font-weight:600;}
+  h1{font-size:25px; line-height:1.35; font-weight:800; letter-spacing:.02em; color:#1f1c17;}
+  .sub{color:var(--text-dim); font-size:13px; margin-top:6px;}
+  .jpy-note{display:inline-block; margin-top:8px; background:var(--gold-soft); color:var(--gold); border-radius:999px; padding:3px 12px; font-size:12px; font-weight:700;}
+  .checklist-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin:18px 0 24px; text-align:left; box-shadow:var(--shadow);}
+  .checklist-card h2{font-size:15px; margin-bottom:12px; color:var(--gold);}
+  .pretrip-todo{list-style:none;}
+  .todo-item{padding:7px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; display:flex; align-items:baseline; gap:8px;}
+  .todo-item:last-child{border-bottom:none;}
+  .todo-item input{accent-color:var(--accent); transform:translateY(1px); flex:none; width:20px; height:20px; -webkit-appearance:none; appearance:none; border:1.5px solid var(--border); border-radius:5px; background:#fff; position:relative; cursor:pointer; flex-shrink:0;}
+  .todo-item input:checked{background:var(--accent); border-color:var(--accent);}
+  .todo-item input:checked::after{content:""; position:absolute; left:6px; top:2px; width:5px; height:10px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);}
+  .todo-deadline{color:var(--accent); font-weight:700; font-size:12.5px; white-space:nowrap;}
+  .todo-text{color:var(--text);}
+
+  /* ===== Section ===== */
+  section{margin:24px 0;}
+  h2.sec-title{font-size:18px; margin-bottom:14px; display:flex; align-items:center; gap:8px; color:#1f1c17;}
+  h2.sec-title .bar{width:4px; height:18px; background:var(--accent); border-radius:2px; display:inline-block;}
+
+  /* pretrip */
+  .pt-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+  @media(min-width:768px){ .pt-grid{grid-template-columns:1fr 1fr;} }
+  .pt-item{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:13px; box-shadow:var(--shadow);}
+  .pt-item b{display:block; color:var(--gold); font-size:12.5px; margin-bottom:4px; letter-spacing:.05em;}
+  .pt-apps{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+  .pt-apps i{font-style:normal; background:var(--card-soft); border:1px solid var(--border); color:var(--text); border-radius:999px; padding:3px 10px; font-size:12px;}
+
+  /* flights */
+  .flights-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+  @media(min-width:768px){ .flights-grid{grid-template-columns:1fr 1fr;} }
+  .flight{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow);}
+  .flight .code{font-weight:800; font-size:16px;}
+  .flight .badge-booked{display:inline-block; background:var(--ok-soft); color:var(--ok); border-radius:999px; font-size:11.5px; padding:2px 9px; margin-left:8px; vertical-align:2px; font-weight:700;}
+  .flight .meta{color:var(--text-dim); font-size:12.5px; margin-top:5px;}
+
+  /* hotels */
+  .hotel{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; box-shadow:var(--shadow);}
+  .hotel .area{font-weight:800; font-size:14.5px; color:var(--accent);}
+  .hotel .reason{color:var(--text-dim); font-size:12.5px; margin:4px 0 8px;}
+  .hotel .opt{background:var(--card-soft); border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px; margin-top:6px;}
+  .hotel .opt .tier{display:inline-block; background:var(--ok-soft); color:var(--ok); border-radius:999px; font-size:11px; padding:1px 8px; font-weight:700;}
+  .hotel .opt .pr{color:var(--gold); font-size:12px; font-weight:700;}
+
+  /* disclaimer */
+  .disclaimer{background:var(--gold-soft); border:1px solid rgba(168,119,44,.4); border-radius:12px; padding:12px 14px; font-size:12px;}
+
+  /* map */
+  #map{height:340px; border-radius:16px; border:1px solid var(--border); z-index:1; box-shadow:var(--shadow); background:#e8e2d6;}
+  @media(min-width:768px){ #map{height:460px;} }
+  .map-fallback{height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px; text-align:center; padding:20px;}
+  .route-pin{background:var(--accent); border:2px solid #fff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,.35);}
+  .route-pin__num{display:flex; align-items:center; justify-content:center; height:100%; font-size:12px; font-weight:800; color:#fff;}
+  .leaflet-container .leaflet-popup-content{font-size:13px; line-height:1.5; color:#333;}
+  .leaflet-container .leaflet-popup-content a{color:#c2402f; font-weight:700;}
+
+  /* timeline */
+  .day-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:var(--shadow);}
+  .day-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .day-date{font-weight:800; font-size:16px; color:var(--accent);}
+  .day-week{color:var(--text-dim); font-size:13px;}
+  .day-theme{font-size:13px; color:var(--gold); font-weight:600; margin-bottom:10px;}
+  .day-tips{background:var(--accent-soft); border-radius:10px; padding:8px 12px; font-size:12.5px; margin-bottom:12px;}
+  .day-tips b{color:var(--accent);}
+  .slots-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+  @media(min-width:768px){ .slots-grid{grid-template-columns:1fr 1fr;} }
+  .slot{background:var(--card-soft); border:1px solid var(--border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; position:relative;}
+  .slot .ph{position:relative; width:100%; padding-top:56.25%; background:linear-gradient(135deg,#dde5e8,#e6dcd2 60%,#ecd0c4); overflow:hidden;}
+  .slot .ph img{position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; -webkit-user-drag:none; user-select:none;}
+  /* 配图：加载成功后隐藏占位小字，加一层底部渐隐，画面更干净 */
+  .slot .ph.has-img .ph-name{display:none;}
+  .slot .ph.has-img::before{content:""; position:absolute; left:0; right:0; bottom:0; height:42%; z-index:1; pointer-events:none; background:linear-gradient(to top,rgba(30,22,12,.30),transparent);}
+  .slot .ph.has-img::after{content:"🖼️"; position:absolute; right:8px; bottom:8px; z-index:2; pointer-events:none; font-size:12px; color:#fff; background:rgba(0,0,0,.28); border-radius:999px; padding:2px 8px; line-height:1.5;}
+  /* 未配图 / 加载失败：金色虚线边框 + 居中占位小字（不与图片叠加） */
+  .slot .ph.no-img{background:var(--card-soft);}
+  .slot .ph.no-img::before{content:""; position:absolute; inset:0; border:1.5px dashed var(--border); border-radius:4px; pointer-events:none;}
+  body.edit-mode .slot .ph.no-img{outline:none;}
+  .slot .ph .ph-name{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1; color:var(--text-dim); font-weight:700; font-size:13px; letter-spacing:.04em; padding:0 12px; text-align:center; width:100%;}
+  .slot .body{padding:11px 12px; display:flex; flex-direction:column; gap:6px;}
+  .slot .nm{font-weight:800; font-size:14px;}
+  .slot .tm{color:var(--gold); font-size:12px; font-weight:700;}
+  .slot .rv{color:var(--text-dim); font-size:12.5px;}
+  .slot .rate{font-size:12px; color:var(--gold); font-weight:700;}
+  .pill{display:inline-block; background:#fff; border:1px solid var(--border); border-radius:999px; font-size:11px; padding:2px 9px; margin:2px 4px 2px 0; color:var(--text);}
+  .pill.season{background:var(--gold-soft); border-color:rgba(168,119,44,.4); color:var(--gold);}
+  .reminder-badge{display:inline-block; background:var(--accent); color:#fff; border-radius:999px; font-size:11px; padding:2px 10px; margin-top:2px; font-weight:700;}
+  .alternatives{background:var(--card-soft); border:1px dashed var(--gold); border-radius:12px; padding:10px 12px; margin-top:10px;}
+  .alternatives b{color:var(--gold); font-size:12.5px;}
+  .alternatives p{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
+
+  /* dining */
+  .dining{background:var(--card-soft); border:1px solid var(--border); border-radius:12px; padding:11px 13px; margin-top:10px;}
+  .dining .meal{font-weight:800; font-size:13.5px; color:var(--accent);}
+  .dining .place{font-size:13px; font-weight:700; margin-top:2px;}
+  .dining .hours{color:var(--text-dim); font-size:11.5px;}
+  .dining ul{margin:5px 0 0 16px; font-size:12.5px;}
+  .dining li span{color:var(--gold); font-weight:700;}
+
+  /* tips */
+  .tips-list{list-style:none;}
+  .tips-list li{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:13px; margin-bottom:8px; display:flex; gap:8px; box-shadow:var(--shadow);}
+  .tips-list li::before{content:"💡"; flex:none;}
+
+  footer{margin:32px 0 0; padding-bottom:calc(40px + env(safe-area-inset-bottom)); text-align:center; color:var(--text-dim); font-size:11.5px;}
+
+  /* ===== 编辑模式 ===== */
+  .editbar{position:fixed; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:1000; display:flex; flex-direction:column; gap:8px; align-items:flex-end;}
+  .editbar button{border:none; border-radius:999px; padding:10px 16px; font-size:13px; font-weight:700; box-shadow:0 2px 10px rgba(0,0,0,.18); cursor:pointer; color:#fff;}
+  #btn-edit{background:var(--accent);}
+  body.edit-mode [data-path]{outline:1px dashed rgba(194,64,47,.55); outline-offset:2px; cursor:text; border-radius:4px; min-height:1em;}
+  body.edit-mode [data-path]:hover{background:var(--accent-soft);}
+  body.edit-mode .slot .ph{cursor:pointer; outline:2px dashed rgba(168,119,44,.7); outline-offset:2px;}
+  body.edit-mode .slot .ph::after{content:"🖼️ 点此换图"; position:absolute; right:6px; bottom:6px; z-index:2; background:rgba(0,0,0,.55); color:#fff; font-size:11px; padding:3px 8px; border-radius:999px;}
+  .ed-hint{display:none; text-align:center; font-size:12px; color:var(--accent); background:var(--accent-soft); border-radius:10px; padding:8px 12px; margin-bottom:10px;}
+  body.edit-mode .ed-hint{display:block;}
+  .slot .del-slot{display:none; position:absolute; top:6px; right:6px; z-index:3; background:var(--accent); color:#fff; border:none; border-radius:999px; width:26px; height:26px; font-size:14px; line-height:1; cursor:pointer;}
+  body.edit-mode .slot .del-slot{display:block;}
+  .add-slot{display:none; margin-top:10px; width:100%; border:1.5px dashed var(--accent); color:var(--accent); background:transparent; border-radius:12px; padding:10px; font-size:13px; font-weight:700; cursor:pointer;}
+  body.edit-mode .add-slot{display:block;}
+  .toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:rgba(30,30,30,.9); color:#fff; font-size:13px; padding:10px 18px; border-radius:999px; z-index:2000; display:none;}
+
+  /* ===== 待办完成态 ===== */
+  .todo-item.done .todo-text{text-decoration:line-through; color:#b9b0a0;}
+  .todo-item.done .todo-deadline{opacity:.55;}
+  .todo-progress{display:block; font-size:11.5px; color:var(--gold); margin-top:8px; font-weight:700;}
+
+  /* ===== 拖拽排序 ===== */
+  .slot.sortable-dragging{opacity:.45; transform:scale(.98);}
+  .slot.sortable-over{border:2px dashed var(--accent);}
+  .slot .drag-handle{display:none; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-size:16px; cursor:grab; user-select:none; touch-action:none; flex:none;}
+  body.edit-mode .slot .drag-handle{display:inline-flex;}
+  .slot .slot-tools{display:none; flex-direction:row; gap:6px; padding:6px 8px 0; align-items:center; flex:none;}
+  body.edit-mode .slot .slot-tools{display:flex;}
+  .slot .mv-btn{background:var(--card); border:1px solid var(--border); color:var(--accent); border-radius:999px; width:28px; height:28px; font-size:15px; line-height:1; cursor:pointer; font-weight:700;}
+  .slot .mv-btn:disabled{opacity:.35; cursor:default;}
+
+  /* ===== 新增一天的按钮 ===== */
+  .add-day{display:none; margin:4px 0 18px; width:100%; border:1.5px dashed var(--gold); color:var(--gold); background:transparent; border-radius:14px; padding:12px; font-size:13.5px; font-weight:700; cursor:pointer;}
+  body.edit-mode .add-day{display:block;}
+  .day-card .day-del{display:none !important;}
+  body.edit-mode .day-card .day-del{display:inline-block !important;}
+
+  /* ===== 日程页签（信息提示） ===== */
+  .day-tabs{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 10px;}
+  .day-tab{background:var(--card-soft); border:1px solid var(--border); color:var(--text-dim); border-radius:999px; padding:4px 12px; font-size:12px; cursor:pointer; font-weight:700; transition:all .15s;}
+  .day-tab.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .day-panel{display:none;}
+  .day-panel.active{display:block;}
+  .day-tip-item{font-size:12.5px; margin:3px 0; line-height:1.6;}
+  body.edit-mode .day-tab .tab-del{display:inline-block;}
+  .day-tab .tab-del{display:none; margin-left:6px; color:inherit; font-weight:800; cursor:pointer;}
+  body.edit-mode .tab-add-btn{display:inline-flex;}
+  .tab-add-btn{display:none; background:transparent; border:1.5px dashed var(--accent); color:var(--accent); border-radius:999px; padding:3px 12px; font-size:12px; font-weight:700; cursor:pointer; align-items:center; gap:4px;}
+
+  /* ===== 数据驱动渲染 · 补充样式 ===== */
+  a.pill{text-decoration:none; color:var(--accent); border-color:rgba(194,64,47,.4); font-weight:700;}
+  .slot .body .pills{display:block;}
+  .todo-lead{color:var(--text-dim); font-size:12px;}
+  .day-note{color:var(--text-dim); font-size:11.5px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===== 页顶 ===== -->
+  <header class="hero">
+    <div class="kicker" id="hero-kicker"></div>
+    <h1 id="hero-title"></h1>
+    <p class="sub" id="hero-sub"></p>
+    <span class="jpy-note" id="hero-note"></span>
+    <div class="checklist-card">
+      <h2>✈️ 出发前待办清单（按截止日排序）</h2>
+      <ul class="pretrip-todo" id="pretrip-todo"></ul>
+    </div>
+    <div class="ed-hint">✏️ 编辑模式：点文字直接改 / 点图片改图集（可多张）/ 拖拽或 ▲▼ 调序 / ＋ 添加景点、＋ 添加一天 / 「＋ 页签」加提示或备忘<br>想批量改内容：直接编辑下方 &lt;script id="trip-data"&gt; 里的 JSON，保存即生效。</div>
+  </header>
+
+  <main>
+    <!-- ===== 行前须知（由 DATA.preTrip 渲染） ===== -->
+    <section id="pretrip">
+      <h2 class="sec-title"><span class="bar"></span>行前须知（按 9 月底–10 月初定制）</h2>
+      <div class="pt-grid" id="pretrip-grid"></div>
+    </section>
+
+    <!-- ===== 航班（由 DATA.flights 渲染） ===== -->
+    <section id="flights">
+      <h2 class="sec-title"><span class="bar"></span>航班</h2>
+      <div class="flights-grid" id="flights-grid"></div>
+    </section>
+
+    <!-- ===== 酒店（由 DATA.hotels 渲染） ===== -->
+    <section id="hotels">
+      <h2 class="sec-title"><span class="bar"></span>酒店（按片区，均已预订）</h2>
+      <div id="hotels-list"></div>
+    </section>
+
+    <!-- ===== 免责声明（由 DATA.site.disclaimer 渲染） ===== -->
+    <section>
+      <div class="disclaimer"><b>⚠️ 免责声明：</b><span id="disclaimer-text"></span></div>
+    </section>
+
+    <!-- ===== 地图 ===== -->
+    <section>
+      <h2 class="sec-title"><span class="bar"></span>🗺️ 行程地图（点击标记查看导航）</h2>
+      <div id="map"><div class="map-fallback">🗺️ 地图由浏览器交互加载（需联网）<br>文字行程不受影响</div></div>
+    </section>
+
+    <!-- ===== 每日时间轴（静态渲染：即使无 JS 也完整可见） ===== -->
+    <section>
+      <h2 class="sec-title"><span class="bar"></span>📅 每日行程</h2>
+      <div id="timeline">
+
+      </div>
+    </section>
+
+    <!-- ===== 全程贴士（由 DATA.tips 渲染） ===== -->
+    <section>
+      <h2 class="sec-title"><span class="bar"></span>全程实用贴士</h2>
+      <ul class="tips-list" id="tips-list"></ul>
+    </section>
+  </main>
+
+  <footer>
+    本页为离线可读的单文件 HTML：文字行程离线可用；地图瓦片与景点图片需联网（加载失败时自动降级为色块）。<br>
+    价格单位：日元（JPY）· 所有信息为 AI 整理参考，请以官方渠道核实。
+  </footer>
+</div>
+
+<!-- ===== 浮动编辑工具 ===== -->
+<div class="editbar">
+  <button id="btn-edit">✏️ 编辑</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ================================================================
+     ★ 唯一数据源 · 想改内容只改这一段 JSON（保存后页面自动重渲染）
+     ---------------------------------------------------------------
+     · 每天 = days 里的一项；景点 = slots 数组里的一项
+     · 每个景点想放几张图：photos: ["地址1","地址2"]（留空则不显示图片）
+     · 每天的攻略/提示/备忘 = extras 数组，每项 {icon,title,lines:[...]}
+     · 页签显示顺序由 tabs 决定，如 ["tips","food","攻略"]，可自由增删
+     · 排序：拖动（桌面）或 ▲▼ 按钮（手机）；增删：直接用「＋ 添加景点 / ＋ 添加一天 / ＋ 页签」
+     ================================================================ -->
+<script id="trip-data" type="application/json">
+{
+  "site": {
+    "kicker": "Osaka · Kyoto · Tokyo",
+    "title": "日本 9.30–10.07 · 关西 × 东京 8 日",
+    "startDate": "2026-09-30",
+    "sub": "2026-09-30 出发 · 8 天 · 暖白 × 朱红 × 金（亮色日式和风）",
+    "jpyNote": "💴 本页价格均为日元（JPY）参考价",
+    "footer": "本页为离线可读的单文件 HTML：文字行程离线可用；地图瓦片与景点图片需联网（加载失败时自动降级为色块）。<br>价格单位：日元（JPY）· 所有信息为 AI 整理参考，请以官方渠道核实。",
+    "disclaimer": "本页全部信息（天气、航班、酒店、餐厅、景点、门票、价格、营业时间、评分、活动等）均为 AI 基于公开资料整理的参考建议，可能不准确或已过时，不保证与实时情况一致；请务必在官方渠道 / 订票订房 / 地图等 App 上核实后再做决定或前往。"
+  },
+  "preTrip": {
+    "title": "行前须知（按 9 月底–10 月初定制）",
+    "items": [
+      { "icon": "🌤️", "label": "天气", "text": "9 月底–10 月初：大阪/京都白天 21–27°C、夜间 15–19°C；东京白天 19–25°C。早晚温差明显、午间日照仍强，是关西最舒服的旅行季之一。" },
+      { "icon": "🌀", "label": "台风/暴雨", "text": "10 月初仍处台风季末期，出发前 3 天起关注日本气象厅（JMA）台风/暴雨预警；若遇台风，航班、寺庙与交通可能临时调整。" },
+      { "icon": "🧥", "label": "穿搭", "text": "长袖衬衫/薄卫衣 + 一件防风外套（早晚凉），舒适步行鞋（每日约 1.5–2 万步），折叠伞，便携充电宝；参拜神社寺庙时着装得体即可。" },
+      { "icon": "💳", "label": "支付", "text": "手机 Suica/Pasmo（Apple 钱包可加卡、内地卡可充值），另备 2–3 万日元现金（小店、自动贩卖机、部分寺庙只收现金），VISA/Master 信用卡通用。" },
+      { "icon": "🎫", "label": "购票时机", "text": "岚山小火车票提前 1 个月开售（JR 西日本官网/车站窗口）；夜行巴士 GRAND GRACE 建议提前 7 天订；晴空塔可提前 3 天官网购票避开现场排队。" },
+      { "icon": "📱", "label": "必备 App", "apps": ["Google Maps", "乗換案内", "Visit Japan Web", "Google 翻译"] }
+    ]
+  },
+  "todo": {
+    "title": "✈️ 出发前待办清单（按截止日排序）",
+    "items": [
+      { "key": "train", "text": "预订岚山小火车（嵯峨野观光铁道）车票", "leadDays": 30 },
+      { "key": "nightbus", "text": "预订 GRAND GRACE GR102 夜行巴士（京都→新宿）", "leadDays": 7 },
+      { "key": "vjw", "text": "填写 Visit Japan Web（入境审查+海关申报）", "leadDays": 14 },
+      { "key": "skytree", "text": "预订晴空塔展望台门票（可选）", "leadDays": 3 },
+      { "key": "esim", "text": "开通手机 eSIM/漫游 + 备好现金", "leadDays": 3 }
+    ]
+  },
+  "flights": {
+    "booked": [
+      { "code": "CX502", "label": "CX502 香港 → 大阪（去程）", "detail": "9.30 16:30（HK）→ 21:15（JP）· 香港T1 → 关西国际T1" },
+      { "code": "CX503", "label": "CX503 东京 → 香港（返程）", "detail": "10.07 10:05（JP）→ 13:50（HK）· 羽田T3 → 香港T1" }
+    ]
+  },
+  "flights": {
+    "booked": [
+      { "label": "CX502 香港 → 大阪（去程）", "code": "CX502", "time": "9.30 16:30（HK）→ 21:15（JP）· 香港T1 → 关西国际T1" },
+      { "label": "CX503 东京 → 香港（返程）", "code": "CX503", "time": "10.07 10:05（JP）→ 13:50（HK）· 羽田T3 → 香港T1" }
+    ],
+    "candidates": []
+  },
+  "hotels": {
+    "title": "酒店（按片区，均已预订）",
+    "areas": [
+      { "area": "📍 大阪 · 梅田", "reason": "机场利木津巴士直达、JR/地铁枢纽，去大阪城、难波、京都都方便，楼下就是梅田大商圈。",
+        "options": [ { "tier": "已预订", "name": "宜必思大阪梅田酒店（Ibis Osaka Umeda）", "priceRange": "约 ¥700–900/晚", "note": "9.30–10.02 两晚，14:00 后 check-in，10.02 11:00 前 check-out；退房时在柜台办理宅急送行李到下一家酒店。" } ] },
+      { "area": "📍 京都 · 京都站", "reason": "紧邻京都站：去清水寺、伏见稻荷、岚山的交通枢纽，也是夜行巴士上车点（八条口）。",
+        "options": [ { "tier": "已预订", "name": "京都站精英酒店（Kyoto Station Elite Hotel）", "priceRange": "约 ¥500–700/晚", "note": "10.02–10.03 一晚；站前收宅急便行李、坐 206 路公交去清水道非常顺。" } ] },
+      { "area": "📍 东京 · 五反田", "reason": "JR 山手线直达涩谷、东京站、上野、秋叶原，距羽田机场约 35 分钟，性价比高、换乘少。",
+        "options": [ { "tier": "已预订", "name": "五反田京王布莱索酒店（Keio Presso Inn Gotanda）", "priceRange": "约 ¥600–900/晚", "note": "10.04–10.07 三晚；10.03 夜行巴士 6:25 到新宿后乘山手线 10 分钟即达。" } ] }
+    ]
+  },
+  "tips": {
+    "title": "全程实用贴士",
+    "items": [
+      "日本轨道交通末班车多在 23:00–0:30，夜游注意末班时间；Suica 余额不足可在便利店或车站充值机充值。",
+      "便利店（7-11/全家/罗森）是早餐与补给的万能选项；街上垃圾桶少，随身带一个小垃圾袋。",
+      "寺庙神社多数 16:30–17:30 停止入内，把需要买票/进殿的项目排在上午，下午留给逛街。",
+      "餐厅高峰 12:00–13:00、18:00–19:30，错峰几乎不排队；日本餐厅多为自助点餐或排队等位，没有催单文化。",
+      "购物满 5,000 日元（不含税）可办免税，随身带护照；药妆/电器认准「免税」标识，秋叶原 Big Camera 7 楼有模型工具专区。",
+      "宅急便：10.02 大阪退房时把大件行李寄到下一家酒店（约 1–2 天达），轻装游玩；10.03 夜巴随身只带小包。"
+    ]
+  },
+  "days": [
+    { "date": "2026-09-30", "weekday": "周三", "theme": "出发日 · 深圳 → 香港 → 大阪",
+      "tips": ["上午 10:00 前从深圳出发前往香港机场（高铁/跨境巴士约 2 小时），14:30 到港后办理登机；国泰 CX502 21:15（日本时间）落地关西。", "21:15 落地后入境+取行李约 40–60 分钟，利木津巴士末班约 23:00，注意别错过。"],
+      "slots": [
+        { "period": "evening", "name": "关西国际机场 T1", "time": "21:15 抵达", "lat": 34.4347, "lng": 135.2431, "rating": 4.4,
+          "review": "CX502 落地，入境审查+取行李；之后乘利木津巴士或南海电铁进市区。", "openingHours": "入境审查 24 小时运行",
+          "pins": ["🚇 利木津巴士（关西机场→梅田） · 约 ¥1,600 · 约 55–75 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Kansai%20International%20Airport%20Terminal.JPG?width=600"] },
+        { "period": "evening", "name": "宜必思大阪梅田酒店（Check-in）", "time": "约 22:30 入住", "lat": 34.7046, "lng": 135.4990, "rating": 4.3,
+          "review": "梅田商圈内的连锁酒店，楼下便利店与居酒屋齐全；早点休息，明天开走。", "openingHours": "前台 24 小时",
+          "photos": ["https://www.ahstatic.com/photos/b5x1_ho_00_p_1024x768.jpg?width=600"] }
+      ],
+      "dining": [{ "meal": "🍽️ 晚餐（机上/落地简餐）", "place": "便利店补给（FamilyMart/Lawson）", "hours": "营业：24 小时", "items": [{ "name": "饭团+炸鸡+牛奶", "price": "约 ¥600" }] }] },
+    { "date": "2026-10-01", "weekday": "周四", "theme": "大阪城 · 难波板块",
+      "tips": ["上午先排户外（天满宫→大阪城），午后进商店街与商场避高温；道顿堀留给晚上看霓虹。", "天神桥筋商店街与黑门市场二选一即可：前者本地生活气、后者海鲜小吃多，别贪多。"],
+      "extras": [{ "icon": "🔀", "title": "当日可选方案", "lines": ["🔸 午餐方案 A · 天神桥筋商店街：日本最长商店街（约 2.6km），一路吃章鱼烧、串炸、点心，本地人爱逛", "🔸 午餐方案 B · 黑门市场：大阪厨房，海鲜刺身、和牛串、草莓大福，游客向但种类全"] }],
+      "slots": [
+        { "period": "morning", "name": "大阪天满宫", "time": "09:30–10:30", "lat": 34.6998, "lng": 135.5104, "rating": 4.5,
+          "review": "学问之神菅原道真，西日本最大天满宫之一；御守和朱印很精致，清晨人少。", "openingHours": "6:00–17:00（社务所）", "ticket": "免费",
+          "pins": ["🚇 梅田→谷町线/步行 · 约 ¥180 · 约 15 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/%C3%94saka-ten%27man-g%C3%BB%20Shint%C3%B4%20Shrine%20-%20Ebisu-mon%20Gate.jpg?width=600"] },
+        { "period": "morning", "name": "大阪城（天守阁）", "time": "10:45–12:30", "lat": 34.6873, "lng": 135.5262, "rating": 4.7,
+          "review": "丰臣秀吉的大阪城，天守阁俯瞰全城；西之丸庭园与护城河很出片。", "openingHours": "9:00–17:00（16:30 停止入馆）", "ticket": "天守阁 ¥600（参考）",
+          "pins": ["🚇 天满宫→大阪城（步行/地铁谷町线） · 约 ¥180 · 约 20 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Osaka%20Castle%2016.JPG?width=600"] },
+        { "period": "noon", "name": "天神桥筋商店街 或 黑门市场（午餐）", "time": "12:30–14:00", "lat": 34.6644, "lng": 135.5056, "rating": 4.4,
+          "review": "黑门市场吃海鲜刺身、和牛串；若选天神桥筋则沿街边走边吃。", "openingHours": "约 9:00–18:00（各店不同）", "ticket": "丰俭由人，人均 ¥1,500–3,000",
+          "pins": ["🚇 大阪城→谷町四丁目→中央线→难波 · 约 ¥230 · 约 25 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Kuromon%20Market%20-%20panoramio.jpg?width=600"] },
+        { "period": "afternoon", "name": "难波八坂神社（可选）", "time": "14:15–14:45", "lat": 34.6647, "lng": 135.5049, "rating": 4.6,
+          "review": "巨大狮子头神殿「狮殿」是网红打卡点，祈求胜利与好运，顺路 20 分钟足够。", "openingHours": "8:00–17:00", "ticket": "免费",
+          "pins": ["🚇 黑门市场步行 · 免费 · 约 8 分钟"],
+          "photos": ["https://ja.wikipedia.org/wiki/Special:FilePath/Namba-yasaka-jinja%20shishibutai.jpg?width=600"] },
+        { "period": "afternoon", "name": "心斋桥（逛街 + Harbs 蛋糕）", "time": "15:00–17:00", "lat": 34.6748, "lng": 135.5015, "rating": 4.6,
+          "review": "拱廊购物街：药妆、潮牌、百货；Harbs 水果千层蛋糕是必吃甜品（心斋桥 Parco 店）。", "openingHours": "商场约 10:00–20:00", "ticket": "免费逛街；Harbs 蛋糕约 ¥900–1,100",
+          "pins": ["🚇 难波→御堂筋线→心斋桥 · 约 ¥180 · 约 5 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Shinsaibashi1.JPG?width=600"] },
+        { "period": "evening", "name": "道顿堀（晚餐+夜景）", "time": "17:30–20:00", "lat": 34.6687, "lng": 135.5013, "rating": 4.8,
+          "review": "格力高跑男、蟹道乐、章鱼烧一条街；赤鬼章鱼烧连续两年米其林推荐。", "openingHours": "餐饮多营业至 23:00", "ticket": "章鱼烧约 ¥600/6 个",
+          "pins": ["🍁 10 月初傍晚气温舒适，正是看霓虹夜景的好时候", "🚇 心斋桥步行 · 免费 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Dotonbori%2017.JPG?width=600"] }
+      ],
+      "dining": [
+        { "meal": "🍽️ 午餐", "place": "黑门市场（若选方案 B）", "hours": "营业：约 9:00–18:00", "items": [{ "name": "海鲜刺身拼盘", "price": "¥1,500" }, { "name": "和牛串", "price": "¥800" }] },
+        { "meal": "🍽️ 下午茶", "place": "Harbs（心斋桥 Parco 店）", "hours": "营业：10:00–20:00", "items": [{ "name": "水果千层蛋糕", "price": "¥980" }, { "name": "冰柠檬茶", "price": "¥680" }] },
+        { "meal": "🍽️ 晚餐", "place": "道顿堀 · 赤鬼章鱼烧", "hours": "营业：11:00–22:00", "items": [{ "name": "章鱼烧 6 个", "price": "¥600" }, { "name": "炸串", "price": "¥400" }] }
+      ] },
+    { "date": "2026-10-02", "weekday": "周五", "theme": "京都 · 清水寺 → 八坂神社 → 祇园 → 伏见稻荷",
+      "tips": ["206 路公交 8 站到清水道下车；回程伏见稻荷→京都站乘 JR 奈良线直达。", "清水寺一定要赶早（6:00 开门），二三年坂商铺 9 点后陆续开门，先逛寺庙再逛坂道。"],
+      "slots": [
+        { "period": "morning", "name": "清水寺", "time": "09:00–11:00", "lat": 34.9949, "lng": 135.7850, "rating": 4.8,
+          "review": "世界遗产，悬空舞台望京都全景；清晨游客最少，二三年坂顺路逛。", "openingHours": "6:00–18:00", "ticket": "¥400（参考）",
+          "pins": ["🚇 京都站→市营 206 路→清水道 · ¥230 · 约 25 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Kiyomizu%20dera%2C%20Kyoto.JPG?width=600"] },
+        { "period": "noon", "name": "八坂神社", "time": "11:30–12:30", "lat": 35.0038, "lng": 135.7787, "rating": 4.6,
+          "review": "祇园的守护神社，西楼门灯笼是经典机位；参道小吃多，适合午餐前逛。", "openingHours": "境内 24 小时", "ticket": "免费",
+          "pins": ["🚇 清水寺步行（经二年坂/三年坂） · 免费 · 约 25 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto%20Yasaka-jinja%20Nebentor%202.jpg?width=600"] },
+        { "period": "noon", "name": "祇园 · 花见小路（午餐）", "time": "12:30–14:00", "lat": 35.0035, "lng": 135.7767, "rating": 4.7,
+          "review": "京都最具风情的花街，町屋建筑与茶屋；午餐吃京豆腐或抹茶甜点。", "openingHours": "街道全天", "ticket": "午餐人均 ¥2,000–4,000",
+          "pins": ["🚇 八坂神社步行 · 免费 · 约 5 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Street%20of%20Gion%2C%20Kyoto.JPG?width=600"] },
+        { "period": "afternoon", "name": "伏见稻荷大社", "time": "15:00–17:00", "lat": 34.9671, "lng": 135.7727, "rating": 4.8,
+          "review": "千本鸟居橙色隧道，越往上人越少；稻荷山往返约 2 小时，走一段即可折返。", "openingHours": "境内 24 小时（社务所 8:30–16:30）", "ticket": "免费",
+          "pins": ["🍁 10 月初青枫与朱红鸟居相衬，光线柔和的下午最适合拍照", "🚇 祇园四条→京阪本线→伏见稻荷 · ¥240 · 约 15 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Double%20torii%20path%20at%20Fushimi%20Inari%20Taisha%20Shrine%2C%20Kyoto%2C%20Japan.jpg?width=600"] }
+      ],
+      "dining": [
+        { "meal": "🍽️ 午餐", "place": "祇园 · 京煎堂（抹茶甜品）", "hours": "营业：10:00–18:00", "items": [{ "name": "抹茶圣代", "price": "¥1,200" }, { "name": "抹茶蕨饼", "price": "¥800" }] },
+        { "meal": "🍽️ 晚餐", "place": "京都站拉面小路 / 胜牛炸牛排", "hours": "营业：11:00–22:00", "items": [{ "name": "黑毛和牛炸牛排定食", "price": "¥2,200" }, { "name": "京都酱油拉面", "price": "¥950" }] }
+      ] },
+    { "date": "2026-10-03", "weekday": "周六", "theme": "岚山（小火车 → 天龙寺 → 竹林）→ 金阁寺 → 夜行巴士",
+      "tips": ["早上从 JR 京都站到 JR 马堀站，步行约 10 分钟到龟冈站，10:30 从龟冈坐小火车到嵯峨野（已官网订票）。", "早上退房时在酒店前台办理宅急便，把大件行李寄到东京酒店（人当晚坐车走，行李次日达东京酒店）。", "晚上 23:45 前到京都站八条口 Avanti 前集合，GRAND GRACE GR102 23:59 发车，行李放车底舱、随身带小包。"],
+      "slots": [
+        { "period": "morning", "name": "岚山小火车（龟冈 → 嵯峨野）", "time": "10:30 发车 · 约 25 分钟", "lat": 35.0186, "lng": 135.6800, "rating": 4.7,
+          "review": "复古观光小火车沿保津川峡谷行驶（龟冈→嵯峨方向），已到官网订购 10:30 发车的票。", "openingHours": "3–12 月运行（周三停运）", "ticket": "单程 ¥880（参考）",
+          "pins": ["⚠️ 建议提前 30 天订", "🔗 订票邮件参考", "🚇 京都站→JR 山阴本线→马堀，步行至龟冈 · ¥240 · 约 17 分钟"],
+          "pinUrls": [null, "https://mail.google.com/mail/u/0/#inbox/FMfcgzQhWfQwvvVHvBsszsbHtcBDXbSG", null],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Torokko-Saga%20Station%20at%20dusk%2020141009.JPG?width=600"] },
+        { "period": "morning", "name": "天龙寺（曹源池庭园）", "time": "11:00–12:00", "lat": 35.0166, "lng": 135.6712, "rating": 4.6,
+          "review": "世界遗产，岚山核心；曹源池借景龟山，枯山水与回游式庭园并美。", "openingHours": "8:30–17:00（庭园 17:30 闭）", "ticket": "庭园 ¥500（参考）",
+          "pins": ["🚇 嵯峨野小火车终点→天龙寺 · 步行 · 免费 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Tenryu-ji%20and%20Pond.jpg?width=600"] },
+        { "period": "morning", "name": "竹林小径", "time": "12:00–12:40", "lat": 35.0174, "lng": 135.6718, "rating": 4.7,
+          "review": "《卧虎藏龙》同款竹林隧道，晨光透过竹叶最美；人少时段在上午。", "openingHours": "全天", "ticket": "免费",
+          "pins": ["🚇 天龙寺北门步行 · 免费 · 约 5 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/2021%20Sagano%20Bamboo%20forest%20in%20Arashiyama%2C%20Kyoto%2C%20Japan.jpg?width=600"] },
+        { "period": "afternoon", "name": "金阁寺（鹿苑寺）", "time": "13:30–15:00", "lat": 35.0394, "lng": 135.7292, "rating": 4.8,
+          "review": "贴金舍利殿倒映镜湖池，京都名片级景观；入口到展望点一路人较多，耐心排队。", "openingHours": "9:00–17:00", "ticket": "¥500（参考）",
+          "pins": ["🚇 岚山→JR 山阴本线→円町→市营 204/205 · 约 ¥320 · 约 40 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Kinkaku-ji%20the%20Golden%20Temple%20in%20Kyoto%20overlooking%20the%20lake%20-%20high%20rez.JPG?width=600"] },
+        { "period": "evening", "name": "京都站八条口（夜行巴士集合）", "time": "23:45 集合 · 23:59 发车", "lat": 34.9807, "lng": 135.7585, "rating": 4.5,
+          "review": "GRAND GRACE GR102 班次：京都→新宿 Busta 3F，次日 6:25 抵达；上车点 Avanti 前观光巴士乘降处。", "openingHours": "夜间发车", "ticket": "约 ¥5,000–8,000",
+          "pins": ["⚠️ 建议提前 7 天订", "🚇 金阁寺→市营 205 路→京都站 · ¥230 · 约 45 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/JR%20Kyoto%20Station%20Hachijo%20West%20entrance%20-%20panoramio.jpg?width=600"] }
+      ],
+      "dining": [
+        { "meal": "🍽️ 午餐", "place": "岚山 · 汤豆腐（よしむら/三忠）", "hours": "营业：11:00–15:00", "items": [{ "name": "汤豆腐定食", "price": "¥2,000" }, { "name": "抹茶冰淇淋", "price": "¥450" }] },
+        { "meal": "🍽️ 晚餐", "place": "京都站地下街便当/拉面", "hours": "营业：至 21:00", "items": [{ "name": "京都站便当+饮料（巴士上吃）", "price": "¥1,000" }] }
+      ] },
+    { "date": "2026-10-04", "weekday": "周日", "theme": "东京 · 晴空塔 → 隅田公园 → 浅草 → 上野 → 秋叶原",
+      "tips": ["夜巴 6:25 到新宿 Busta 后，乘山手线到五反田酒店寄放行李再出发（约 10 分钟）。", "秋叶原采购清单：Warhammer/Fogeworld 模型、相机镜头与电池、Big Camera 7 楼胶佬工具；骏河屋中古周边按成色淘。"],
+      "slots": [
+        { "period": "morning", "name": "新宿 Busta 3F（夜巴抵达）", "time": "06:25 抵达", "lat": 35.6896, "lng": 139.7006, "rating": 4.4,
+          "review": "GRAND GRACE 终点，下楼换 JR 山手线；清晨的新宿人少，先吃个便利店早餐。", "openingHours": "巴士站 24 小时",
+          "pins": ["🚇 JR 山手线 新宿→五反田 · ¥150 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku%20Expressway%20Bus%20Terminal%202020.JPG?width=600"] },
+        { "period": "morning", "name": "东京晴空塔（天望甲板/回廊）", "time": "09:30–11:30", "lat": 35.7101, "lng": 139.8107, "rating": 4.8,
+          "review": "634m 世界第一高塔；350m 甲板看东京全景，450m 回廊玻璃步道更刺激。", "openingHours": "10:00–21:00", "ticket": "甲板 ¥2,100 / 回廊 ¥3,100（参考）",
+          "pins": ["⚠️ 建议提前 3 天订", "🍁 10 月秋季点灯与日落衔接，黄昏场次最抢手", "🚇 五反田→山手线→新桥→浅草线→押上 · 约 ¥400 · 约 40 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Tokyo%20Skytree%202014%20%E2%85%A2.jpg?width=600"] },
+        { "period": "noon", "name": "隅田公园（晴空塔合影）", "time": "11:30–12:15", "lat": 35.7114, "lng": 139.7965, "rating": 4.5,
+          "review": "隅田川对岸仰拍晴空塔的经典机位，春天樱花、秋天散步都舒服。", "openingHours": "全天", "ticket": "免费",
+          "pins": ["🚇 押上步行过桥 · 免费 · 约 15 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Sumida%20Park%20%2C%202011.JPG?width=600"] },
+        { "period": "noon", "name": "浅草寺 · 雷门 · 仲见世", "time": "12:30–13:30", "lat": 35.7148, "lng": 139.7967, "rating": 4.7,
+          "review": "雷门大灯笼、仲见世人形烧与雷おこし；本堂抽签求签，浅草是下町风情代表。", "openingHours": "本堂 6:00–17:00", "ticket": "免费",
+          "pins": ["🚇 隅田公园步行 · 免费 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Sensoji%2CAsakusa.JPG?width=600"] },
+        { "period": "afternoon", "name": "上野公园 · 阿美横町", "time": "14:00–16:00", "lat": 35.7153, "lng": 139.7738, "rating": 4.6,
+          "review": "东京国立博物馆看特展，不忍池散步，阿美横町扫药妆零食；公园免费。", "openingHours": "公园全天；博物馆 9:30–17:00（周一休）", "ticket": "公园免费；国立博物馆 ¥1,000（参考）",
+          "pins": ["🚇 浅草→银座线→上野 · ¥180 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/ToriAtUenoPark.JPG?width=600"] },
+        { "period": "evening", "name": "秋叶原（采购 + 女仆咖啡）", "time": "16:30–19:30", "lat": 35.6984, "lng": 139.7731, "rating": 4.7,
+          "review": "电器街与宅文化中心：骏河屋中古、Big Camera 相机与模型工具、女仆咖啡体验。", "openingHours": "多数店铺 10:00–21:00", "ticket": "丰俭由人",
+          "pins": ["🚇 上野→JR 山手线→秋叶原 · ¥150 · 约 4 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Akihabara%20Dai%20bdg%2007b.JPG?width=600"] }
+      ],
+      "dining": [
+        { "meal": "🍽️ 午餐", "place": "浅草 · 仲见世人形烧 / 上野 · 宇奈とと鳗鱼饭", "hours": "营业：11:00–20:00", "items": [{ "name": "蒲烧鳗鱼饭（小份）", "price": "¥1,000" }, { "name": "人形烧 10 个", "price": "¥500" }] },
+        { "meal": "🍽️ 晚餐", "place": "秋叶原 · 咖喱/拉面（CoCo 壱番屋等）", "hours": "营业：至 23:00", "items": [{ "name": "猪排咖喱饭", "price": "¥980" }, { "name": "秋叶原系拉面", "price": "¥1,100" }] }
+      ] },
+    { "date": "2026-10-05", "weekday": "周一", "theme": "东京站 → 皇居 → 明治神宫 → 代代木公园 → 涩谷",
+      "tips": ["皇居东御苑周一/周五闭园，10.05 为周一——改走皇居外苑·二重桥一带（免费开放）。", "上午东京站+皇居，午后明治神宫→代代木公园→涩谷，正好顺山手线一环不走回头路。"],
+      "slots": [
+        { "period": "morning", "name": "东京站 · 丸之内站舍", "time": "09:30–10:15", "lat": 35.6812, "lng": 139.7671, "rating": 4.6,
+          "review": "百年红砖站舍，站前广场与 KITTE 屋顶是经典机位；站内一番街买伴手礼。", "openingHours": "站舍全天；商店 10:00–20:00", "ticket": "免费",
+          "pins": ["🚇 五反田→JR 山手线→东京 · ¥180 · 约 20 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Tokyo%20Station%20Marunouchi%20Building%20-%20DSC09668.JPG?width=600"] },
+        { "period": "morning", "name": "皇居外苑 · 二重桥", "time": "10:30–12:00", "lat": 35.6852, "lng": 139.7528, "rating": 4.5,
+          "review": "二重桥与护城河松树，开阔的外苑适合散步；东御苑今日闭园，改走外苑即可。", "openingHours": "外苑全天开放", "ticket": "免费",
+          "pins": ["🚇 东京站步行 · 免费 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Imperial%20Palace%20Tokyo%20Sakashita%20Mon%20and%20Imperial%20Household.JPG?width=600"] },
+        { "period": "afternoon", "name": "明治神宫", "time": "13:00–14:30", "lat": 35.6764, "lng": 139.6993, "rating": 4.8,
+          "review": "东京最大神社，森林参道与巨大鸟居；10 月初仍绿意葱茏，御苑与宝物殿值得一进。", "openingHours": "日出–日落（宝物殿 9:00–16:00）", "ticket": "免费",
+          "pins": ["🚇 东京站→千代田线→明治神宫前（原宿） · ¥200 · 约 25 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Meiji-jingu%20torii.JPG?width=600"] },
+        { "period": "afternoon", "name": "代代木公园", "time": "14:30–15:30", "lat": 35.6714, "lng": 139.6948, "rating": 4.5,
+          "review": "明治神宫旁的城市绿洲，周末常有市集与街头艺人，草坪上躺平晒太阳。", "openingHours": "全天", "ticket": "免费",
+          "pins": ["🚇 明治神宫步行 · 免费 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Yoyogi%20Park%202.JPG?width=600"] },
+        { "period": "afternoon", "name": "涩谷（十字路口 + SHIBUYA SKY）", "time": "16:00–19:00", "lat": 35.6595, "lng": 139.7005, "rating": 4.7,
+          "review": "世界最繁忙十字路口、忠犬八公像；SHIBUYA SKY 屋顶看日落东京，潮牌与药妆集中。", "openingHours": "SHIBUYA SKY 10:00–22:00", "ticket": "SHIBUYA SKY ¥2,000（参考）",
+          "pins": ["🍁 10 月中旬起涩谷万圣节装饰渐浓，夜晚街头氛围感拉满", "🚇 代代木公园步行/千代田线 1 站 · 免费 · 约 15 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Shibuya%20crossing1.JPG?width=600"] }
+      ],
+      "dining": [
+        { "meal": "🍽️ 午餐", "place": "原宿/涩谷 · 回转寿司（根室花まる等）", "hours": "营业：11:00–22:00", "items": [{ "name": "回转寿司 8 贯", "price": "¥1,800" }, { "name": "抹茶布丁", "price": "¥350" }] },
+        { "meal": "🍽️ 晚餐", "place": "涩谷 · 一兰拉面 / 鸟贵族", "hours": "营业：至 24:00", "items": [{ "name": "天然豚骨拉面", "price": "¥980" }, { "name": "烤鸡串 5 本", "price": "¥1,400" }] }
+      ] },
+    { "date": "2026-10-06", "weekday": "周二", "theme": "自由日（原计划空白，以下为建议方案）",
+      "tips": ["原行程 10.06 未安排，给两个可选方向：A 新宿御苑+原宿表参道（轻休闲）；B 台场+丰洲（亲子/科技向，需预约 teamLab）。", "若想补购物：银座、池袋、秋叶原二刷都顺山手线；傍晚回五反田整理行李。"],
+      "extras": [{ "icon": "🔀", "title": "当日可选方案", "lines": ["🔸 方案 A · 新宿御苑 × 原宿表参道：新宿御苑秋色散步（¥500）→ 表参道精品街 → 涩谷/池袋补货，全程山手线+步行，轻松收尾", "🔸 方案 B · 台场 × 丰洲：teamLab Planets 沉浸展（丰洲，需官网预约 ¥3,200）→ 台场海滨公园看彩虹大桥 → 高达像/夜景"] }],
+      "slots": [
+        { "period": "morning", "name": "新宿御苑（秋色散步）", "time": "09:30–12:00", "lat": 35.6852, "lng": 139.7100, "rating": 4.7,
+          "review": "东京市中心最大的日式庭园，10 月初秋色初染，草坪与茶室惬意。", "openingHours": "9:00–16:30（周一休）", "ticket": "¥500（参考）",
+          "pins": ["🚇 五反田→JR 山手线→新宿 · ¥150 · 约 10 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku%20Gyoen%20National%20Garden%20-%20DSC05147.JPG?width=600"] },
+        { "period": "noon", "name": "原宿 · 表参道", "time": "13:00–15:30", "lat": 35.6658, "lng": 139.7105, "rating": 4.6,
+          "review": "表参道精品街+原宿竹下通，潮牌、杂货、可丽饼；明治神宫前站直达。", "openingHours": "商店约 10:00–20:00", "ticket": "免费逛街",
+          "pins": ["🚇 新宿→JR 山手线→原宿 · ¥150 · 约 8 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Omotesando%202007%20b.JPG?width=600"] },
+        { "period": "afternoon", "name": "池袋（补购物/乙女路）", "time": "16:00–18:30", "lat": 35.7295, "lng": 139.7109, "rating": 4.4,
+          "review": "若还没买够：池袋阳光城、Animate 本店与乙女路，二次元浓度与秋叶原相当。", "openingHours": "商店约 10:00–21:00", "ticket": "丰俭由人",
+          "pins": ["🚇 原宿→JR 山手线→池袋 · ¥180 · 约 15 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Ikebukuro%20dsc04823.jpg?width=600"] }
+      ],
+      "dining": [
+        { "meal": "🍽️ 午餐", "place": "新宿御苑附近 / 表参道咖啡", "hours": "营业：11:00–20:00", "items": [{ "name": "招牌松饼", "price": "¥1,300" }, { "name": "法式吐司", "price": "¥1,400" }] },
+        { "meal": "🍽️ 晚餐", "place": "池袋 · 无敌家拉面 / 居酒屋", "hours": "营业：至 23:00", "items": [{ "name": "浓厚豚骨拉面", "price": "¥950" }, { "name": "串烧拼盘", "price": "¥1,200" }] }
+      ] },
+    { "date": "2026-10-07", "weekday": "周三", "theme": "返程 · 羽田 T3 → 香港",
+      "tips": ["CX503 10:05 起飞，建议 07:00 前从五反田出发（山手线→品川→京急线约 35–45 分钟），提前 2 小时到机场。", "羽田 T3 免税店与伴手礼充足，值机后留 1 小时采购。"],
+      "slots": [
+        { "period": "morning", "name": "羽田机场 T3（值机 + 免税购物）", "time": "07:45 抵达 · 10:05 起飞", "lat": 35.5494, "lng": 139.7850, "rating": 4.6,
+          "review": "CX503 返程香港 13:50 落地；T3 出境后免税店买伴手礼，东京香蕉、薯条三兄弟。", "openingHours": "航站楼 24 小时",
+          "pins": ["🚇 五反田→山手线→品川→京急空港线 · 约 ¥500 · 约 40 分钟"],
+          "photos": ["https://commons.wikimedia.org/wiki/Special:FilePath/Haneda%20International%20Terminal%20and%20Station.JPG?width=600"] }
+      ],
+      "dining": [{ "meal": "🍽️ 早餐", "place": "羽田 T3 出发层简餐/便利店", "hours": "营业：05:30 起", "items": [{ "name": "饭团+咖啡", "price": "¥600" }] }] }
+  ]
+}
+</script>
+
+<script>
+/* ============ map.js（内联，含 GCJ 转换） ============ */
+function escapeHTML(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function buildNavLink(lat, lng, label, ua) {
+  if (ua && /iPhone|iPad|iPod/.test(ua)) return 'https://maps.apple.com/?ll=' + lat + ',' + lng + '&q=' + encodeURIComponent(label);
+  return 'geo:' + lat + ',' + lng + '?q=' + lat + ',' + lng + '(' + encodeURIComponent(label) + ')';
+}
+function isInChinaBBox(lat, lng) { return lng >= 72.004 && lng <= 137.8347 && lat >= 0.8293 && lat <= 55.8271; }
+function buildMapAppLinks(lat, lng, label) {
+  var amap = { label: '高德地图', url: 'https://uri.amap.com/marker?position=' + lng + ',' + lat + '&name=' + encodeURIComponent(label) + '&coordinate=wgs84&callnative=1&src=travel-plan-viz' };
+  var google = { label: 'Google 地图', url: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lat + ',' + lng) };
+  return isInChinaBBox(lat, lng) ? [amap] : [google, amap];
+}
+var GCJ_A = 6378245.0, GCJ_EE = 0.00669342162296594323;
+function gcj02ToWgs84(lat, lng) {
+  if (!isInChinaBBox(lat, lng)) return { lat: lat, lng: lng };
+  function tLat(x, y) {
+    var r = -100 + 2*x + 3*y + 0.2*y*y + 0.1*x*y + 0.2*Math.sqrt(Math.abs(x));
+    r += (20*Math.sin(6*x*Math.PI) + 20*Math.sin(2*x*Math.PI)) * 2/3;
+    r += (20*Math.sin(y*Math.PI) + 40*Math.sin(y/3*Math.PI)) * 2/3;
+    r += (160*Math.sin(y/12*Math.PI) + 320*Math.sin(y*Math.PI/30)) * 2/3;
+    return r;
+  }
+  function tLng(x, y) {
+    var r = 300 + x + 2*y + 0.1*x*x + 0.1*x*y + 0.1*Math.sqrt(Math.abs(x));
+    r += (20*Math.sin(6*x*Math.PI) + 20*Math.sin(2*x*Math.PI)) * 2/3;
+    r += (20*Math.sin(x*Math.PI) + 40*Math.sin(x/3*Math.PI)) * 2/3;
+    r += (150*Math.sin(x/12*Math.PI) + 300*Math.sin(x/30*Math.PI)) * 2/3;
+    return r;
+  }
+  var dLat = tLat(lng-105, lat-35), dLng = tLng(lng-105, lat-35);
+  var radLat = lat/180*Math.PI, magic = Math.sin(radLat);
+  magic = 1 - GCJ_EE*magic*magic;
+  var sq = Math.sqrt(magic);
+  dLat = dLat*180 / ((GCJ_A*(1-GCJ_EE))/(magic*sq)*Math.PI);
+  dLng = dLng*180 / (GCJ_A/sq*Math.cos(radLat)*Math.PI);
+  return { lat: lat-dLat, lng: lng-dLng };
+}
+function initTravelMap(elementId, points, opts) {
+  opts = opts || {};
+  var map = L.map(elementId);
+  L.tileLayer(opts.tileUrl || 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: opts.attribution || '&copy; OpenStreetMap &copy; CARTO',
+    maxZoom: 19, detectRetina: true,
+  }).addTo(map);
+  var ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+  points.forEach(function (p, i) {
+    var icon = L.divIcon({ className: 'route-pin', html: '<span class="route-pin__num">' + (i+1) + '</span>', iconSize: [28,28], iconAnchor: [14,14] });
+    var links = [{ label:'导航', url: buildNavLink(p.lat,p.lng,p.name,ua) }].concat(buildMapAppLinks(p.lat,p.lng,p.name));
+    L.marker([p.lat,p.lng], { icon: icon }).addTo(map).bindPopup('<b>'+(i+1)+'. '+escapeHTML(p.name)+'</b><br>'+(p.time?escapeHTML(p.time)+'<br>':'')+links.map(function(l){return '<a href="'+l.url+'">'+escapeHTML(l.label)+'</a>';}).join(' · '));
+  });
+  var coords = points.map(function(p){ return [p.lat,p.lng]; });
+  if (coords.length > 1) L.polyline(coords, { dashArray:'6 8', weight:2, color:'#c2402f' }).addTo(map);
+  map.fitBounds(coords.length ? coords : [[0,0]], { padding:[30,30] });
+  return map;
+}
+</script>
+
+<script>
+/* ============ 待办清单 + 编辑模式 + 拖拽排序 + 日程页签 + 新增一天 + 地图联动 ============ */
+(function () {
+  'use strict';
+
+  /* ================================================================
+     0) 唯一数据源：从 #trip-data 读取 JSON（改内容只需改那一段）
+     ================================================================ */
+  var DATA = {};
+  try {
+    DATA = JSON.parse(document.getElementById('trip-data').textContent);
+  } catch (e) {
+    console.error('行程数据解析失败：', e);
+  }
+
+  var SID_SEQ = 0;
+  var DAY_IDX = {};   // daySid  -> day 对象
+  var SLOT_IDX = {};  // slotSid -> slot 对象
+  function ensureSids() {
+    (DATA.days || []).forEach(function (d) {
+      if (!d._sid) d._sid = 'd' + (++SID_SEQ);
+      DAY_IDX[d._sid] = d;
+      (d.slots || []).forEach(function (s) {
+        if (!s._sid) s._sid = 's' + (++SID_SEQ);
+        SLOT_IDX[s._sid] = s;
+      });
+    });
+  }
+
+  /* ================================================================
+     1) 渲染层：数据 -> HTML
+     ================================================================ */
+  var PERIOD_ICON = { morning: '☀️ 上午', noon: '🌤️ 中午/下午', afternoon: '🌤️ 中午/下午', evening: '🌙 晚上' };
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function setText(sel, txt) { var n = $(sel); if (n) n.textContent = txt == null ? '' : txt; }
+  function setHTML(sel, html) { var n = $(sel); if (n) n.innerHTML = html; }
+  function setSectionTitle(sel, txt) {
+    var list = $(sel); if (!list) return;
+    var sec = list.closest('section'); if (!sec) return;
+    var h = $('.sec-title', sec);
+    if (h) h.innerHTML = '<span class="bar"></span>' + esc(txt);
+  }
+
+  /* 日期工具：ISO 日期 -> 显示 / 待办截止日 */
+  var WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  function parseDate(iso) { var p = String(iso || '').split('-'); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null; }
+  function weekdayOf(iso) { var d = parseDate(iso); return d ? WEEK[d.getDay()] : ''; }
+  function fmtFull(d) { return d ? d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) : ''; }
+  function minusDays(iso, n) { var d = parseDate(iso); if (!d) return null; d.setDate(d.getDate() - n); return d; }
+
+  /* 多图相册：无图时不生成任何图片元素（占位文字与图片不叠加） */
+  function photoHTML(photos, name) {
+    if (!photos || !photos.length) return '';
+    var inner = photos.map(function (u) {
+      return '<img src="' + esc(u) + '" alt="' + esc(name) + '" loading="lazy"' +
+        ' onload="this.closest(\'.ph\').classList.add(\'has-img\')"' +
+        ' onerror="this.remove()">';
+    }).join('');
+    return '<div class="ph" data-path="photos"><span class="ph-name">' + esc(name) + '</span>' + inner + '</div>';
+  }
+
+  function slotHTML(s, i) {
+    var pins = (s.pins || []).map(function (p, j) {
+      var url = (s.pinUrls || [])[j];
+      return url
+        ? '<a class="pill" href="' + esc(url) + '" target="_blank" rel="noopener" data-path="pin' + j + '" data-url="' + esc(url) + '">' + esc(p) + '</a>'
+        : '<span class="pill" data-path="pin' + j + '">' + esc(p) + '</span>';
+    }).join('');
+    var hoursPill = s.openingHours ? '<span class="pill">🕘 <span data-path="openingHours">' + esc(s.openingHours) + '</span></span>' : '';
+    var ticketPill = s.ticket ? '<span class="pill">🎫 <span data-path="ticket">' + esc(s.ticket) + '</span></span>' : '';
+    return '' +
+      '<div class="slot" data-sid="' + esc(s._sid) + '" data-lat="' + (s.lat != null ? s.lat : '') + '" data-lng="' + (s.lng != null ? s.lng : '') + '">' +
+        '<button class="del-slot" title="删除此景点">✕</button>' +
+        photoHTML(s.photos, s.name) +
+        '<div class="slot-tools"><span class="drag-handle" title="拖动排序">⠿</span>' +
+          '<button class="mv-btn mv-up" title="上移">▲</button>' +
+          '<button class="mv-btn mv-down" title="下移">▼</button></div>' +
+        '<div class="body">' +
+          '<div class="nm"><span data-path="name">' + esc(s.name) + '</span></div>' +
+          '<div class="tm">' + (PERIOD_ICON[s.period] || PERIOD_ICON.afternoon) + ' · <span data-path="time">' + esc(s.time || '') + '</span></div>' +
+          '<div class="rv" data-path="review">' + esc(s.review || '') + '</div>' +
+          (s.rating ? '<div class="rate">★ ' + esc(s.rating) + '</div>' : '') +
+          '<div class="pills">' + hoursPill + ticketPill + pins + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function diningHTML(d) {
+    var items = (d.items || []).map(function (it) { return '<li>' + esc(it.name) + ' <span>' + esc(it.price) + '</span></li>'; }).join('');
+    return '<div class="dining"><div class="meal">' + esc(d.meal) + '</div>' +
+      '<div class="place">' + esc(d.place) + '</div>' +
+      (d.hours ? '<div class="hours">' + esc(d.hours) + '</div>' : '') +
+      (items ? '<ul>' + items + '</ul>' : '') + '</div>';
+  }
+
+  /* 每天一张卡片；页签顺序由 day.tabs 决定（tips / 自定义标题 / food） */
+  function dayCardHTML(day, di) {
+    var order = (day.tabs && day.tabs.length) ? day.tabs : null;
+    var tabDefs = [];
+    if (!order || order.indexOf('tips') !== -1) tabDefs.push({ key: 'tips', icon: '💡', label: '当日提示' });
+    (day.extras || []).forEach(function (ex, k) {
+      tabDefs.push({ key: 'ex' + k, icon: ex.icon || '📌', label: ex.title || ('备忘 ' + (k + 1)) });
+    });
+    if (!order || order.indexOf('food') !== -1) tabDefs.push({ key: 'food', icon: '🍽️', label: '美食' });
+    if (!tabDefs.length) tabDefs.push({ key: 'tips', icon: '💡', label: '当日提示' });
+    if (order) tabDefs.sort(function (a, b) { return order.indexOf(a.key) - order.indexOf(b.key); });
+
+    var tabs = [], panels = [];
+    tabDefs.forEach(function (t, ti) {
+      var act = (ti === 0) ? ' active' : '';
+      tabs.push('<button class="day-tab' + act + '" data-tab="' + t.key + '">' + t.icon + ' ' + esc(t.label) + '<span class="tab-del" title="删除此页签">✕</span></button>');
+      if (t.key === 'tips') {
+        var lines = (day.tips || []).map(function (line, li) {
+          return '<div>· <span data-path="tips.' + li + '">' + esc(line) + '</span></div>';
+        }).join('');
+        panels.push('<div class="day-panel' + act + '" data-panel="tips"><div class="day-tips"><b>💡 当日提示</b>' + lines + '</div></div>');
+      } else if (t.key === 'food') {
+        panels.push('<div class="day-panel' + act + '" data-panel="food"><div class="day-tips"><b>🍽️ 美食推荐</b>' +
+          (day.dining || []).map(diningHTML).join('') + '</div></div>');
+      } else {
+        var k = +t.key.slice(2), ex = (day.extras || [])[k] || { lines: [] };
+        var body = (ex.lines || []).map(function (line, li) {
+          return '<p>· <span data-path="extras.' + k + '.' + li + '">' + esc(line) + '</span></p>';
+        }).join('');
+        panels.push('<div class="day-panel' + act + '" data-panel="' + t.key + '"><div class="alternatives">' +
+          '<b>' + (ex.icon || '📌') + ' <span data-path="extras.' + k + '.title">' + esc(ex.title || '') + '</span></b>' + body + '</div></div>');
+      }
+    });
+
+    return '' +
+      '<div class="day-card" data-sid="' + esc(day._sid) + '">' +
+        '<div class="day-head">' +
+          '<span class="day-date">Day ' + (di + 1) + ' · ' + esc(day.date || '') + '</span>' +
+          '<span class="day-week">' + esc(day.weekday || weekdayOf(day.date)) + '</span>' +
+          '<button class="mv-btn day-del" title="删除这一天（编辑模式可用）">🗑 删</button>' +
+        '</div>' +
+        '<div class="day-theme" data-path="theme">' + esc(day.theme || '') + '</div>' +
+        '<div class="day-tabs">' + tabs.join('') + '<button class="tab-add-btn" title="新增信息页签">＋ 页签</button></div>' +
+        '<div class="day-panels">' + panels.join('') + '</div>' +
+        '<div class="slots-grid">' + (day.slots || []).map(slotHTML).join('') + '</div>' +
+        '<button class="add-slot" data-dayidx="' + di + '">＋ 添加景点</button>' +
+      '</div>';
+  }
+
+  function renderAll() {
+    var S = DATA.site || {};
+    setText('#hero-kicker', S.kicker);
+    setText('#hero-title', S.title);
+    setText('#hero-sub', S.sub);
+    setText('#hero-note', S.jpyNote);
+    setText('#disclaimer-text', S.disclaimer);
+    if (S.title) document.title = S.title;
+    setHTML('footer', S.footer || '');
+
+    /* 待办（按提前天数从多到少，即截止日从早到晚） */
+    var todo = DATA.todo || {};
+    setText('.checklist-card h2', todo.title || '出发前待办清单');
+    var startISO = S.startDate;
+    var items = (todo.items || []).map(function (t) {
+      var d = (t.leadDays != null && startISO) ? fmtFull(minusDays(startISO, t.leadDays)) : '';
+      return { key: t.key || ('t' + (t.text || '').length + (t.leadDays || 0)), text: t.text, dl: d, lead: t.leadDays || 0 };
+    }).sort(function (a, b) { return b.lead - a.lead; });
+    setHTML('#pretrip-todo', items.map(function (t) {
+      return '<li class="todo-item"><input type="checkbox" data-key="' + esc(t.key) + '">' +
+        (t.dl ? '<span class="todo-deadline">' + esc(t.dl) + '前</span>' : '') +
+        '<span class="todo-text">' + esc(t.text) + '</span></li>';
+    }).join(''));
+
+    /* 行前须知 */
+    var pre = DATA.preTrip || {};
+    setSectionTitle('#pretrip-grid', pre.title || '行前须知');
+    setHTML('#pretrip-grid', (pre.items || []).map(function (it) {
+      var body = it.apps
+        ? '<div class="pt-apps">' + it.apps.map(function (a) { return '<i>' + esc(a) + '</i>'; }).join('') + '</div>'
+        : '<span data-path="text">' + esc(it.text || '') + '</span>';
+      return '<div class="pt-item"><b>' + esc(it.icon || '') + ' ' + esc(it.label || '') + '</b>' + body + '</div>';
+    }).join(''));
+
+    /* 航班 */
+    setHTML('#flights-grid', ((DATA.flights || {}).booked || []).map(function (f) {
+      return '<div class="flight"><span class="code">' + esc(f.code) + '</span>' +
+        '<span class="badge-booked">✓ 已预订</span>' +
+        '<div class="meta"><span data-path="time">' + esc(f.detail || '') + '</span></div></div>';
+    }).join(''));
+
+    /* 酒店 */
+    var hotels = DATA.hotels || {};
+    setSectionTitle('#hotels-list', hotels.title || '酒店');
+    setHTML('#hotels-list', (hotels.areas || []).map(function (h) {
+      var opts = (h.options || []).map(function (o) {
+        return '<div class="opt"><span class="tier">' + esc(o.tier || '') + '</span> ' + esc(o.name || '') +
+          ' · <span class="pr">' + esc(o.priceRange || '') + '</span>' +
+          (o.note ? '<div class="nt">' + esc(o.note) + '</div>' : '') + '</div>';
+      }).join('');
+      return '<div class="hotel"><div class="area">' + esc(h.area || '') + '</div>' +
+        '<div class="reason" data-path="reason">' + esc(h.reason || '') + '</div>' + opts + '</div>';
+    }).join(''));
+
+    /* 每日行程 */
+    setHTML('#timeline', (DATA.days || []).map(dayCardHTML).join(''));
+
+    /* 全程贴士 */
+    var tips = DATA.tips || {};
+    setSectionTitle('#tips-list', tips.title || '全程实用贴士');
+    setHTML('#tips-list', (tips.items || []).map(function (t, i) {
+      return '<li data-path="tips.' + i + '">' + esc(t) + '</li>';
+    }).join(''));
+  }
+
+  /* ================================================================
+     2) 编辑器：DOM 是唯一输入，sync() 把改动写回 DATA
+     ================================================================ */
+  var btnEdit = document.getElementById('btn-edit');
+  var toastEl = document.getElementById('toast');
+  var editing = false;
+
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.style.display = 'block';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toastEl.style.display = 'none'; }, 2400);
+  }
+  function closest(el, sel) { return (el && el.closest) ? el.closest(sel) : null; }
+  function isEdit() { return editing; }
+  /* 安全输入：环境不支持 prompt/confirm 时优雅降级，不中断页面 */
+  function ask(msg, def) {
+    try { return window.prompt(msg, def); }
+    catch (e) { toast('当前环境不支持输入框，请直接编辑数据 JSON'); return null; }
+  }
+  function askOk(msg) {
+    try { return window.confirm(msg); } catch (e) { return true; }
+  }
+  function dayCards() { return $all('.day-card'); }
+  var trim = function (s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); };
+
+  /* ---- 单景点：DOM -> 数据 ---- */
+  function syncSlot(slotEl, s) {
+    var n;
+    if ((n = $('[data-path="name"]', slotEl))) s.name = trim(n.textContent);
+    if ((n = $('[data-path="time"]', slotEl))) s.time = trim(n.textContent);
+    if ((n = $('.rv', slotEl))) s.review = trim(n.textContent);
+    if ((n = $('[data-path="openingHours"]', slotEl))) s.openingHours = trim(n.textContent);
+    if ((n = $('[data-path="ticket"]', slotEl))) s.ticket = trim(n.textContent);
+    var pins = [], urls = [];
+    $all('[data-path^="pin"]', slotEl).forEach(function (p) {
+      pins.push(trim(p.textContent));
+      urls.push(p.getAttribute('data-url') || '');
+    });
+    s.pins = pins;
+    if (urls.some(Boolean)) s.pinUrls = urls; else delete s.pinUrls;
+    var la = slotEl.getAttribute('data-lat'), ln = slotEl.getAttribute('data-lng');
+    if (la !== null && la !== '') s.lat = parseFloat(la);
+    if (ln !== null && ln !== '') s.lng = parseFloat(ln);
+    var ph = $('.ph', slotEl);
+    if (ph) s.photos = $all('img', ph).map(function (i) { return i.getAttribute('src'); });
+  }
+
+  /* ---- 整天：DOM -> 数据（含页签顺序、提示行、自定义备注行） ---- */
+  function syncDay(card, day) {
+    var n = $('.day-theme', card); if (n) day.theme = trim(n.textContent);
+
+    day.tips = $all('[data-path^="tips."]', card).map(function (e) { return trim(e.textContent); });
+
+    var extras = [];
+    $all('.day-panel', card).forEach(function (panel) {
+      var key = panel.getAttribute('data-panel');
+      if (key === 'tips' || key === 'food' || !key) return;
+      var box = $('.alternatives', panel) || panel;
+      var titleEl = $('[data-path$=".title"]', box);
+      var iconEl = box.querySelector('b');
+      var icon = iconEl ? trim(iconEl.textContent.split(' ')[0]) : '📌';
+      extras.push({
+        icon: icon,
+        title: titleEl ? trim(titleEl.textContent) : '',
+        lines: $all('p', box).map(function (p) { return trim(p.textContent).replace(/^·\s*/, ''); })
+      });
+    });
+    day.extras = extras;
+    day.tabs = $all('.day-tab', card).map(function (t) { return t.getAttribute('data-tab'); });
+
+    var slots = [];
+    $all('.slot', card).forEach(function (slotEl) {
+      var sid = slotEl.getAttribute('data-sid');
+      var s = SLOT_IDX[sid];
+      if (!s) { s = { _sid: sid }; SLOT_IDX[sid] = s; }
+      syncSlot(slotEl, s);
+      slots.push(s);
+    });
+    day.slots = slots;
+  }
+
+  /* ---- 全页面：DOM -> 数据 ---- */
+  function sync() {
+    var days = [];
+    dayCards().forEach(function (card) {
+      var sid = card.getAttribute('data-sid');
+      var day = DAY_IDX[sid];
+      if (!day) { day = { _sid: sid }; DAY_IDX[sid] = day; }
+      syncDay(card, day);
+      days.push(day);
+    });
+    DATA.days = days;
+  }
+
+  /* ---------- 1) 待办清单：可点击勾选 + localStorage 持久化 ---------- */
+  var TODO_KEY = 'travelTodoState_v1';
+  function loadTodo() {
+    try { return JSON.parse(localStorage.getItem(TODO_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function applyTodoState() {
+    var state = loadTodo();
+    var boxes = $all('.pretrip-todo input[type="checkbox"]');
+    boxes.forEach(function (cb) {
+      var k = cb.getAttribute('data-key');
+      cb.checked = !!state[k];
+      var li = closest(cb, '.todo-item');
+      if (li) li.classList.toggle('done', !!state[k]);
+    });
+    updateTodoProgress();
+  }
+  function updateTodoProgress() {
+    var boxes = $all('.pretrip-todo input[type="checkbox"]');
+    var done = boxes.filter(function (cb) { return cb.checked; }).length;
+    var progEl = $('.todo-progress');
+    if (!progEl) {
+      progEl = document.createElement('span');
+      progEl.className = 'todo-progress';
+      var card = $('.checklist-card');
+      if (card) card.appendChild(progEl);
+    }
+    progEl.textContent = '已完成 ' + done + ' / ' + boxes.length;
+  }
+  $all('.pretrip-todo input[type="checkbox"]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var state = loadTodo();
+      state[cb.getAttribute('data-key')] = cb.checked;
+      try { localStorage.setItem(TODO_KEY, JSON.stringify(state)); } catch (e) {}
+      var li = closest(cb, '.todo-item');
+      if (li) li.classList.toggle('done', cb.checked);
+      updateTodoProgress();
+    });
+  });
+
+  /* ---------- 2) 编辑模式开关 ---------- */
+  function setEditable(on) {
+    var els = $all('[data-path]');
+    for (var i = 0; i < els.length; i++) els[i].setAttribute('contenteditable', on ? 'true' : 'false');
+  }
+  btnEdit.addEventListener('click', function () {
+    editing = !editing;
+    document.body.classList.toggle('edit-mode', editing);
+    setEditable(editing);
+    btnEdit.textContent = editing ? '✓ 完成' : '✏️ 编辑';
+    if (editing) {
+      refreshSlotTools();
+      toast('编辑模式：改文字 / 点图改图集 / 拖拽或 ▲▼ 调序 / 增删景点与日程 / 管理提示页签');
+    } else {
+      sync();
+      refreshMap();
+      toast('已退出编辑（改动仅当前页面生效；要永久保存请直接改文件内的 trip-data JSON）');
+    }
+  });
+
+  /* ---------- 3) 地图联动：从当前 DOM 收集有序点位 ---------- */
+  function collectPointsFromDOM() {
+    var pts = [];
+    var cards = $all('.day-card');
+    cards.forEach(function (card) {
+      var theme = $('.day-theme', card);
+      var themeTxt = theme ? theme.textContent.trim() : '';
+      $all('.slot', card).forEach(function (slot) {
+        var nm = $('.nm', slot);
+        var tm = $('.tm span', slot) || $('.tm', slot);
+        var lat = parseFloat(slot.getAttribute('data-lat'));
+        var lng = parseFloat(slot.getAttribute('data-lng'));
+        if (!isNaN(lat) && !isNaN(lng)) {
+          pts.push({ name: nm ? nm.textContent.trim() : '', time: (themeTxt ? themeTxt + ' · ' : '') + (tm ? tm.textContent.trim() : ''), lat: lat, lng: lng });
+        }
+      });
+    });
+    return pts;
+  }
+  function refreshMap() {
+    var mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined' || !L.map) return;
+    try {
+      if (window.__travelMap) { window.__travelMap.remove(); window.__travelMap = null; }
+    } catch (e) {}
+    var pts = collectPointsFromDOM();
+    if (!pts.length) { if (mapEl) mapEl.innerHTML = '<div class="map-fallback">暂无地图点位</div>'; return; }
+    try {
+      window.__travelMap = initTravelMap('map', pts);
+      setTimeout(function(){ if (window.__travelMap) window.__travelMap.invalidateSize(); }, 150);
+    } catch (e) { if (mapEl) mapEl.innerHTML = '<div class="map-fallback">🗺️ 地图刷新失败（不影响文字）</div>'; }
+  }
+
+  /* ---------- 4) 景点卡片工具：拖拽手柄 + 上下移按钮 ---------- */
+  function buildSlotTools(slot, idx) {
+    var wrap = document.createElement('div');
+    wrap.className = 'slot-tools';
+    wrap.innerHTML =
+      '<span class="drag-handle" title="拖动排序">⠿</span>' +
+      '<button class="mv-btn mv-up" title="上移">▲</button>' +
+      '<button class="mv-btn mv-down" title="下移">▼</button>';
+    var ph = $('.ph', slot);
+    if (ph && ph.nextSibling) slot.insertBefore(wrap, ph.nextSibling);
+    else slot.insertBefore(wrap, slot.firstChild);
+    slot.setAttribute('data-slot-idx', idx);
+  }
+  function refreshSlotTools() {
+    $all('.day-card').forEach(function (card) {
+      var slots = $all('.slot', card);
+      slots.forEach(function (slot, idx) {
+        var tools = $('.slot-tools', slot);
+        if (!tools) { buildSlotTools(slot, idx); tools = $('.slot-tools', slot); }
+        var up = $('.mv-up', tools), down = $('.mv-down', tools);
+        if (up) up.disabled = (idx === 0);
+        if (down) down.disabled = (idx === slots.length - 1);
+      });
+    });
+    bindMoveButtons();
+    bindDragSort();
+  }
+  // 上下移（桌面 & 移动端通用）
+  function bindMoveButtons() {
+    $all('.mv-up').forEach(function (btn) {
+      btn.onclick = function () {
+        if (!isEdit()) return;
+        var slot = closest(btn, '.slot');
+        var grid = closest(slot, '.slots-grid');
+        if (!slot || !grid) return;
+        var prev = slot.previousElementSibling;
+        if (prev && prev.classList.contains('slot')) { grid.insertBefore(slot, prev); afterOrderChange(); }
+      };
+    });
+    $all('.mv-down').forEach(function (btn) {
+      btn.onclick = function () {
+        if (!isEdit()) return;
+        var slot = closest(btn, '.slot');
+        var grid = closest(slot, '.slots-grid');
+        if (!slot || !grid) return;
+        var next = slot.nextElementSibling;
+        if (next && next.classList.contains('slot')) { grid.insertBefore(next, slot); afterOrderChange(); }
+      };
+    });
+  }
+  // 拖拽排序（桌面 mousedown + 触屏 touch 长按拖动）
+  function bindDragSort() {
+    $all('.drag-handle').forEach(function (handle) {
+      handle.onmousedown = function (e) {
+        if (!isEdit()) return;
+        e.preventDefault();
+        startDrag(handle, e.clientY);
+      };
+      handle.ontouchstart = function (e) {
+        if (!isEdit()) return;
+        var t = e.touches && e.touches[0];
+        if (!t) return;
+        e.preventDefault();
+        startDrag(handle, t.clientY);
+      };
+    });
+    function startDrag(handle, startY) {
+      var slot = closest(handle, '.slot');
+      var grid = closest(slot, '.slots-grid');
+      if (!slot || !grid) return;
+      var slots = $all('.slot', grid);
+      var moved = false;
+      function onMove(y) {
+        if (Math.abs(y - startY) < 6) return;
+        moved = true;
+        slot.classList.add('sortable-dragging');
+        var target = null;
+        slots.forEach(function (s) {
+          if (s === slot) return;
+          var r = s.getBoundingClientRect();
+          if (y < r.top + r.height / 2 && !target) target = { el: s, before: true };
+        });
+        if (!target) {
+          var last = slots[slots.length - 1];
+          if (last !== slot) target = { el: last, before: false };
+        }
+        if (target) {
+          if (target.before) grid.insertBefore(slot, target.el);
+          else grid.insertBefore(slot, target.el.nextSibling);
+        }
+        slots = $all('.slot', grid);
+      }
+      function onMouseMove(ev) { onMove(ev.clientY); }
+      function onTouchMove(ev) {
+        if (ev.touches && ev.touches[0]) onMove(ev.touches[0].clientY);
+      }
+      function stop() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', stop);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', stop);
+        slot.classList.remove('sortable-dragging');
+        if (moved) { afterOrderChange(); moved = false; }
+      }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', stop);
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', stop);
+    }
+  }
+  /* 顺序变化后：重排编号 + 同步地图 + 同步数据 */
+  function renumberDays() {
+    dayCards().forEach(function (card, i) {
+      var d = $('.day-date', card);
+      if (d) d.textContent = 'Day ' + (i + 1) + ' · ' + (d.textContent.split('·')[1] || '').trim();
+      var addI = card.getAttribute('data-dayidx');
+      var btn = $('.add-slot', card);
+      if (btn) btn.setAttribute('data-dayidx', i);
+    });
+  }
+  function afterOrderChange() {
+    renumberDays();
+    sync();
+    refreshMap();
+    toast('已调整顺序（地图已同步）');
+  }
+
+  /* ---------- 5) 新增一天（统一走渲染器，保证与数据同构） ---------- */
+  function ensureAddDayButton() {
+    var timeline = document.getElementById('timeline');
+    if (!timeline || $('.add-day', timeline.parentNode)) return;
+    var btn = document.createElement('button');
+    btn.className = 'add-day';
+    btn.textContent = '＋ 添加一天（新日程）';
+    btn.addEventListener('click', function () {
+      if (!isEdit()) return;
+      var newDay = { date: '', theme: '新的一天 · 点击编辑主题', tips: ['点击编辑本日提示…'], slots: [] };
+      newDay._sid = 'd' + (++SID_SEQ);
+      DAY_IDX[newDay._sid] = newDay;
+      DATA.days = DATA.days || [];
+      DATA.days.push(newDay);
+      var wrap = document.createElement('div');
+      wrap.innerHTML = dayCardHTML(newDay, DATA.days.length - 1);
+      var card = wrap.firstChild;
+      timeline.parentNode.insertBefore(card, timeline.nextSibling);
+      if (editing) $all('[data-path]', card).forEach(function (el) { el.setAttribute('contenteditable', 'true'); });
+      bindDayButtons(); bindAddSlot($('.add-slot', card), card); bindDelSlot(card); bindPhotoClick(); refreshSlotTools();
+      sync();
+      toast('已添加新的一天：点击编辑主题/提示，用「添加景点」安排行程');
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    timeline.parentNode.insertBefore(btn, timeline.nextSibling);
+  }
+
+  /* ---------- 6) 每日页签（信息提示）管理 ---------- */
+  function bindDayButtons() {
+    bindTabSwitching();
+    bindTabAdd();
+    bindTabDel();
+  }
+  function bindTabSwitching() {
+    $all('.day-card').forEach(function (card) {
+      var tabs = $all('.day-tab', card);
+      tabs.forEach(function (tab) {
+        if (tab.__tabBound) return;
+        tab.__tabBound = true;
+        tab.addEventListener('click', function (e) {
+          if (e.target.classList.contains('tab-del')) return;
+          var name = tab.getAttribute('data-tab');
+          $all('.day-tab', card).forEach(function (t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          $all('.day-panel', card).forEach(function (p) {
+            p.classList.toggle('active', p.getAttribute('data-panel') === name);
+          });
+        });
+      });
+    });
+  }
+  /* 新增页签：直接创建（无需输入框），“新页签 / 点击编辑”均可就地改写 */
+  function bindTabAdd(scope) {
+    $all('.tab-add-btn', scope).forEach(function (btn) {
+      if (btn.__tabAddBound) return;
+      btn.__tabAddBound = true;
+      btn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var card = closest(btn, '.day-card');
+        if (!card) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'day-panel';
+        wrap.setAttribute('data-panel', 'newp');
+        wrap.innerHTML = '<div class="alternatives"><b>📌 <span data-path="title">新页签</span></b>' +
+          '<p>· <span data-path="line">点击编辑内容…（换行可写多条）</span></p></div>';
+        $('.day-panels', card).appendChild(wrap);
+
+        var tabB = document.createElement('button');
+        tabB.className = 'day-tab';
+        tabB.setAttribute('data-tab', 'newp');
+        tabB.innerHTML = '📌 新页签<span class="tab-del" title="删除此页签">✕</span>';
+        btn.parentNode.insertBefore(tabB, btn);
+
+        sync(); // 此 extras 已含新页签（key 仍为 newp）
+        var day = DAY_IDX[card.getAttribute('data-sid')];
+        var k = (day.extras || []).length - 1;
+        var key = 'ex' + k;
+        tabB.setAttribute('data-tab', key);
+        wrap.setAttribute('data-panel', key);
+        $all('[data-path]', wrap).forEach(function (el) {
+          var p = el.getAttribute('data-path');
+          if (p === 'title') el.setAttribute('data-path', 'extras.' + k + '.title');
+          if (p === 'line') el.setAttribute('data-path', 'extras.' + k + '.0');
+          el.setAttribute('contenteditable', editing ? 'true' : 'false');
+        });
+        $all('.day-tab', card).forEach(function (t) { t.classList.remove('active'); });
+        tabB.classList.add('active');
+        $all('.day-panel', card).forEach(function (p) { p.classList.remove('active'); });
+        wrap.classList.add('active');
+        bindTabDel(card);
+        sync();
+        var focusEl = $('[data-path$=".title"]', wrap);
+        if (focusEl && focusEl.focus) focusEl.focus();
+        toast('已新增页签：点标题/内容直接改写文字');
+      });
+    });
+  }
+  function bindTabDel(scope) {
+    $all('.day-tab .tab-del', scope).forEach(function (x) {
+      if (x.__tabDelBound) return;
+      x.__tabDelBound = true;
+      x.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!isEdit()) return;
+        var tab = closest(x, '.day-tab');
+        var card = closest(tab, '.day-card');
+        if (!tab || !card || !askOk('删除该页签？')) return;
+        var name = tab.getAttribute('data-tab');
+        var panel = $('.day-panel[data-panel="' + name + '"]', card);
+        var wasActive = tab.classList.contains('active');
+        tab.remove();
+        if (panel) panel.remove();
+        if (wasActive) {
+          var firstTab = $('.day-tab', card);
+          if (firstTab) firstTab.click();
+        }
+        sync();
+        toast('页签已删除');
+      });
+    });
+  }
+
+  /* ---------- 7) 添加景点（生成与渲染器同构的卡片，并写入数据） ---------- */
+  function bindAddSlot(scope) {
+    $all('.add-slot', scope).forEach(function (btn) {
+      if (btn.__bound) return;
+      btn.__bound = true;
+      btn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var dayCard = closest(btn, '.day-card');
+        var grid = $('.slots-grid', dayCard);
+        var day = DAY_IDX[dayCard.getAttribute('data-sid')];
+        var s = { name: '新景点', period: 'afternoon', time: '时间待定', review: '点击编辑点评…（编辑模式下点图片可配图）', rating: 4.0, pins: [], photos: [] };
+        // 继承同日前一个景点的坐标，避免地图缺失（可后改）
+        var prev = grid.lastElementChild;
+        if (prev && prev.getAttribute('data-lat')) { s.lat = parseFloat(prev.getAttribute('data-lat')); s.lng = parseFloat(prev.getAttribute('data-lng')); }
+        s._sid = 's' + (++SID_SEQ);
+        SLOT_IDX[s._sid] = s;
+        (day.slots = day.slots || []).push(s);
+
+        var wrap = document.createElement('div');
+        wrap.innerHTML = slotHTML(s);
+        var slot = wrap.firstChild;
+        grid.appendChild(slot);
+
+        // 顶部工具栏加「设坐标」按钮（只在编辑模式显示）
+        var tools = $('.slot-tools', slot);
+        var posBtn = document.createElement('button');
+        posBtn.className = 'mv-btn set-pos';
+        posBtn.title = '设置地图坐标';
+        posBtn.textContent = '📍';
+        posBtn.style.cssText = 'width:auto;padding:0 8px;';
+        tools.appendChild(posBtn);
+        posBtn.addEventListener('click', function () {
+          if (!isEdit()) return;
+          var lat = ask('纬度 lat（如 35.6812）：', slot.getAttribute('data-lat') || '');
+          if (lat === null) return;
+          var lng = ask('经度 lng（如 139.7671）：', slot.getAttribute('data-lng') || '');
+          if (lng === null) return;
+          var nlat = parseFloat(lat), nlng = parseFloat(lng);
+          if (isNaN(nlat) || isNaN(nlng)) { toast('坐标格式不正确'); return; }
+          slot.setAttribute('data-lat', nlat); slot.setAttribute('data-lng', nlng);
+          s.lat = nlat; s.lng = nlng;
+          refreshMap(); toast('✅ 坐标已设置，地图已更新');
+        });
+
+        if (editing) $all('[data-path]', slot).forEach(function (el) { el.setAttribute('contenteditable', 'true'); });
+        bindDelSlot(slot); bindPhotoClick(); refreshSlotTools();
+        sync(); refreshMap();
+        toast('已添加景点：点文字编辑；点图片可配图；📍 设地图坐标');
+      });
+    });
+  }
+  function bindDelSlot(scope) {
+    $all('.del-slot', scope).forEach(function (d) {
+      if (d.__bound) return;
+      d.__bound = true;
+      d.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var slot = closest(d, '.slot');
+        if (slot && askOk('删除这个景点？')) { slot.remove(); afterOrderChange(); }
+      });
+    });
+  }
+
+  /* ---------- 8) 图集编辑：每行一个图片 URL（支持多图，留空即不显示图） ---------- */
+  function applyPhotos(ph, urls, name) {
+    if (!ph) return;
+    ph.innerHTML = '<span class="ph-name">' + esc(name || '') + '</span>';
+    ph.classList.remove('has-img');
+    urls.forEach(function (u) {
+      var im = document.createElement('img');
+      im.alt = name || 'photo';
+      im.loading = 'lazy';
+      im.onload = function () { ph.classList.add('has-img'); };
+      im.onerror = function () { im.remove(); };
+      im.src = u;
+      ph.appendChild(im);
+    });
+  }
+  function bindPhotoClick() {
+    $all('.ph').forEach(function (ph) {
+      if (ph.__photoBound) return;
+      ph.__photoBound = true;
+      ph.addEventListener('click', function () {
+        if (!isEdit()) return;
+        var slotEl = closest(ph, '.slot');
+        var s = SLOT_IDX[slotEl.getAttribute('data-sid')] || {};
+        var nameEl = $('[data-path="name"]', slotEl);
+        var nm = nameEl ? trim(nameEl.textContent) : '';
+        var cur = $all('img', ph).map(function (i) { return i.getAttribute('src'); }).join('\n');
+        var url = ask('图片地址（每行一个，可放多张；全部删空则不显示图片）：\n' + nm, cur);
+        if (url === null) return;
+        var urls = url.split('\n').map(function (x) { return trim(x); }).filter(Boolean);
+        applyPhotos(ph, urls, nm);
+        s.photos = urls;
+        toast(urls.length ? ('已设置 ' + urls.length + ' 张图片') : '已清空图片');
+      });
+    });
+  }
+
+  /* ---------- 9c) 初始绑定（数据已含坐标，无需自动补全） ---------- */
+  function initAll() {
+    ensureSids();                // ★ 必须先分配唯一 sid，DOM 才能与数据一一对应
+    renderAll();                 // 数据 -> 页面
+    ensureAddDayButton();
+    bindTabSwitching();
+    bindTabAdd(null);
+    bindTabDel(null);
+    bindAddSlot(null);
+    bindDelSlot(null);
+    bindPhotoClick();
+    addDayDeleteButtons();
+    refreshSlotTools();
+    applyTodoState();
+    // 编辑模式下点表格里的链接不跳转（避免误触离开）
+    document.addEventListener('click', function (e) {
+      if (editing && closest(e.target, 'a.pill')) e.preventDefault();
+    }, true);
+    window.__refreshMapFromDOM = function () { sync(); refreshMap(); }; // 地图：以数据为准
+    refreshMap();
+  }
+  function addDayDeleteButtons() {
+    $all('.day-card .day-del').forEach(function (delBtn) {
+      if (delBtn.__bound) return;
+      delBtn.__bound = true;
+      delBtn.addEventListener('click', function () {
+        if (!isEdit()) return;
+        if (!askOk('删除这一整天？（其中所有景点都会移除）')) return;
+        var card = closest(delBtn, '.day-card');
+        if (card) card.remove();
+        renumberDays();
+        sync();
+        refreshMap();
+        toast('已删除该日程');
+      });
+    });
+  }
+  initAll();
+})();
+</script>
+
+<script>
+/* ============ Leaflet 多 CDN 加载 + 地图初始化（纯增强，不影响文字） ============ */
+(function () {
+  var jsUrls = [
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.js'
+  ];
+  function loadJs(i) {
+    if (i >= jsUrls.length || window.__leafletLoaded) return;
+    var s = document.createElement('script');
+    s.src = jsUrls[i];
+    s.onload = function () { if (typeof L !== 'undefined') { window.__leafletLoaded = true; tryInit(); } else loadJs(i+1); };
+    s.onerror = function () { loadJs(i+1); };
+    document.head.appendChild(s);
+  }
+  var cssUrls = [
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+    'https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.css'
+  ];
+  function loadCss(i) {
+    if (i >= cssUrls.length || window.__leafletCssLoaded) return;
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = cssUrls[i];
+    l.onload = function () { window.__leafletCssLoaded = true; };
+    l.onerror = function () { loadCss(i+1); };
+    document.head.appendChild(l);
+  }
+  function tryInit() {
+    var mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined' || !L.map) return;
+    try {
+      if (window.__refreshMapFromDOM) {
+        window.__refreshMapFromDOM(); // 以数据为准重建点位
+      }
+      var sync = function(){ if(window.__travelMap) window.__travelMap.invalidateSize(); };
+      window.addEventListener('resize', sync);
+      window.addEventListener('orientationchange', function(){ setTimeout(sync, 400); });
+    } catch (e) { mapEl.innerHTML = '<div class="map-fallback">🗺️ 地图初始化失败（不影响文字行程）</div>'; }
+  }
+  loadCss(0);
+  loadJs(0);
+  setTimeout(function(){ if (typeof L !== 'undefined') { window.__leafletLoaded = true; tryInit(); } }, 300);
+  setTimeout(function(){ if (mapEl()) { var el = mapEl(); if (el && !el.querySelector('.leaflet-container')) { el.innerHTML = '<div class="map-fallback">🗺️ 地图需联网加载，当前环境未加载成功<br>文字行程完整可用</div>'; } } }, 12000);
+  function mapEl(){ return document.getElementById('map'); }
+})();
+</script>
+
+</body>
+</html>
