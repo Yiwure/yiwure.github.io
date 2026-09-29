@@ -51,7 +51,10 @@ function removeNote(area, i) {
               {{ h.icon }} <EditableText v-model:value="h.city" :editing="editing" />
             </span>
             <span class="stay-tier">{{ h.tier }}</span>
-            <span class="stay-price"><EditableText v-model:value="h.priceRange" :editing="editing" /></span>
+            <!-- 价格可选：数据里没有 priceRange 时不占位 -->
+            <span v-if="h.priceRange" class="stay-price">
+              <EditableText v-model:value="h.priceRange" :editing="editing" />
+            </span>
           </div>
           <div class="stay-hotel"><EditableText v-model:value="h.name" :editing="editing" /></div>
           <div class="stay-loc">
