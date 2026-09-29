@@ -97,12 +97,41 @@ h2.sec-title .bar{width:4px; height:18px; background:var(--accent); border-radiu
 .flight .meta{color:var(--text-dim); font-size:12.5px; margin-top:5px;}
 
 /* hotels */
-.hotel{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; box-shadow:var(--shadow);}
-.hotel .area{font-weight:800; font-size:14.5px; color:var(--accent);}
-.hotel .reason{color:var(--text-dim); font-size:12.5px; margin:4px 0 8px;}
-.hotel .opt{background:var(--card-soft); border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px; margin-top:6px;}
-.hotel .opt .tier{display:inline-block; background:var(--ok-soft); color:var(--ok); border-radius:999px; font-size:11px; padding:1px 8px; font-weight:700;}
-.hotel .opt .pr{color:var(--gold); font-size:12px; font-weight:700;}
+/* ===== 酒店：日期 → 位置 → 注意事项 ===== */
+.stay-list{display:flex; flex-direction:column; gap:12px;}
+.stay-card{background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden;}
+
+/* 1) 日期条：入住 → 退房 + 晚数 */
+.stay-dates{display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:11px 14px; background:var(--accent-soft); border-bottom:1px solid var(--border);}
+.stay-seq{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:999px; background:var(--accent); color:#fff; font-size:12px; font-weight:800; flex:none; margin-right:2px;}
+.stay-date{display:inline-flex; align-items:baseline; gap:4px;}
+.stay-date b{color:var(--accent); font-size:15px; font-weight:800; letter-spacing:.02em;}
+.stay-date i{font-style:normal; font-size:11px; color:var(--text-dim);}
+.stay-arrow{color:var(--gold); font-weight:800; font-size:13px;}
+.stay-nights{margin-left:auto; background:var(--card); border:1px solid var(--border); color:var(--gold); border-radius:999px; padding:2px 10px; font-size:11.5px; font-weight:700; white-space:nowrap;}
+
+/* 2) 位置 */
+.stay-body{padding:12px 14px;}
+.stay-name{display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:4px;}
+.stay-city{font-weight:800; font-size:14px; color:var(--text);}
+.stay-tier{background:var(--ok-soft); color:var(--ok); border-radius:999px; font-size:11px; padding:1px 8px; font-weight:700;}
+.stay-price{color:var(--gold); font-size:12px; font-weight:700;}
+.stay-hotel{font-size:13.5px; font-weight:700; color:var(--accent); margin-bottom:6px;}
+.stay-loc{display:flex; align-items:flex-start; gap:5px; font-size:12.5px; color:var(--text-dim); line-height:1.65; background:var(--card-soft); border:1px solid var(--border); border-radius:10px; padding:8px 11px;}
+.stay-loc-icon{flex:none;}
+
+/* 3) 注意事项 */
+.stay-notes{margin-top:9px;}
+.stay-notes-title{display:block; color:var(--gold); font-size:12.5px; margin-bottom:5px;}
+.stay-notes ul{list-style:none; display:flex; flex-direction:column; gap:5px;}
+.stay-notes li{position:relative; font-size:12.5px; color:var(--text-dim); line-height:1.65; padding-left:13px;}
+.stay-notes li::before{content:"·"; position:absolute; left:2px; top:-1px; color:var(--accent); font-weight:800;}
+.stay-notes li .tab-del{margin-left:5px;}
+@media(max-width:400px){
+  .stay-dates{gap:6px;}
+  .stay-date b{font-size:14px;}
+  .stay-nights{margin-left:0; order:9;}
+}
 
 /* disclaimer */
 .disclaimer{background:var(--gold-soft); border:1px solid rgba(168,119,44,.4); border-radius:12px; padding:12px 14px; font-size:12px;}
