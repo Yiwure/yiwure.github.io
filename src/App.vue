@@ -4,6 +4,7 @@ import { trip, addDay, removeDay, resetToDefault, hasLocalDraft } from '@/compos
 import { useEditMode, useToast, showToast, askOk } from '@/composables/useEditMode'
 
 import TripHeader from '@/components/TripHeader.vue'
+import TripTodo from '@/components/TripTodo.vue'
 import TripPreTrip from '@/components/TripPreTrip.vue'
 import TripFlights from '@/components/TripFlights.vue'
 import TripHotels from '@/components/TripHotels.vue'
@@ -44,6 +45,7 @@ function onReset() {
   <TripHeader />
 
   <main class="wrap">
+    <TripTodo />
     <TripPreTrip />
     <TripFlights />
     <TripHotels />
